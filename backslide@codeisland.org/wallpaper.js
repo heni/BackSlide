@@ -10,12 +10,46 @@ const gio = imports.gi.Gio;
 const Wallpaper = new Lang.Class({
     Name: "Wallpaper",
 
+    _image_stack: [],
+
     /**
      * Constructs a new class to do all the wallpaper-related work.
      * @private
      */
     _init: function(){
-        // TODO Load the list of wallpapers and operate on the list!
+        this._loadStack();
+    },
+
+    /**
+     * Load the image-list from the settings, populate the Stack and
+     *  randomize it, if necessary.
+     * @private
+     */
+    _loadStack: function(){
+        // TODO Reload the image-stack:
+    },
+
+    /**
+     * Slide to the next wallpaper in the list.
+     * @param callback the function to be called when the switch is done.
+     *  This function will be passed an argument with the path of the next
+     *  wallpaper.
+     */
+    next: function(callback){
+        if (callback === undefined || callback === null || typeof callback !== "function"){
+            throw TypeError('A callback-function needs to be assigned!');
+        }
+        let wallpaper = this._image_stack.pop();
+        // Check if there where any items left in the stack:
+        if (wallpaper === undefined){
+            this._loadStack();
+            wallpaper = this._image_stack.pop();
+        }
+        // Set the wallpaper:
+        this._setWallpaper(wallpaper);
+        // Callback:
+        let next_wallpaper = this._image_stack[this._image_stack.length-1]; // TODO This requires at least 2 images!
+        callback(next_wallpaper);
     },
 
     /**
@@ -38,6 +72,7 @@ const Wallpaper = new Lang.Class({
         if (background.is_writable("picture-uri")){
             // Set a new Background-Image (should show up immediately):
             if (background.set_string("picture-uri", "file://"+path) ){
+                gio.Settings.sync() // Necessary: http://stackoverflow.com/questions/9985140
                 return true;
             } else {
                 throw "Couldn't set the key!";
@@ -46,4 +81,4 @@ const Wallpaper = new Lang.Class({
             throw "The key is not writable";
         }
     }
-})
+});
