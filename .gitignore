@@ -1,3 +1,6 @@
 # IDE Stuff:
 .idea/
 deploy.sh
+
+# Compiled GSettings schema:
+backslide@codeisland.org/schemas/gschemas.compiled
