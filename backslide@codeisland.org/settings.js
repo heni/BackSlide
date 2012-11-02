@@ -107,6 +107,30 @@ const Settings = new Lang.Class({
         return this._setting.get_strv("image-list");
     },
 
+    /**
+     * Set the list of wallpaper-path's.
+     * @param list the new list (array) of image-path's.
+     * @throws TypeError if 'list' is not an array.
+     */
+    setImageList: function(list){
+        // Validate:
+        let what = Object.prototype.toString; // See http://stackoverflow.com/questions/4775722
+        if (list === undefined || list === null || what.call(list) !== "[object Array]"){
+            throw TypeError("'list' should be an array.");
+        }
+        // Set:
+        let key = "image-list";
+        if (this._setting.is_writable(key)){
+            if (this._setting.set_strv(key, list)){
+                Gio.Settings.sync();
+            } else {
+                throw this._errorSet(key);
+            }
+        } else {
+            throw this._errorWritable(key);
+        }
+    },
+
     _errorWritable: function(key){
         return "The key '"+key+"' is not writable.";
     },

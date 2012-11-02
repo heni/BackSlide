@@ -7,17 +7,27 @@
 const Gtk = imports.gi.Gtk;
 const GObject = imports.gi.GObject;
 const Pixbuf = imports.gi.GdkPixbuf;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Pref = Me.imports.settings;
 
+let settings;
 /**
  * Called right after the file was loaded.
  */
 function init(){
-
+    settings = new Pref.Settings();
 }
 
 function addListEntry(model, path, number){
     // Load and scale the image from the given path:
-    let image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 200, 100, true);
+    let image;
+    try {
+        image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 200, 100, true);
+    } catch (e){
+        // Image could not be loaded. Invalid path.
+        // TODO Proper error handling here. Maybe invalid-picture with X?
+    }
+    if (image === undefined) return;
     // Append to the list:
     let iterator = model.append();
     model.set(iterator, [0,1], [number, image]);
@@ -63,8 +73,9 @@ function buildPrefsWidget(){
     tree_scroll.add(image_tree);
     frame.add(tree_scroll);
     // Fill the Model:
-    for (let i = 0; i < 10; i++){
-        addListEntry(list_model, "/home/luke/Bilder/Wallpapers/wiese_und_rote_berge.jpg", i+1);
+    let image_list = settings.getImageList();
+    for (let i = 0; i < image_list.length; i++){
+        addListEntry(list_model, image_list[i], i+1);
     }
 
     // Toolbar to the right:
