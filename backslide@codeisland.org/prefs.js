@@ -11,11 +11,19 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
 
 let settings;
+let image_list;
+let list_selection;
 /**
  * Called right after the file was loaded.
  */
 function init(){
     settings = new Pref.Settings();
+    image_list = settings.getImageList();
+    /*settings.setImageList([
+        "/home/luke/Bilder/Wallpapers/fluss_und_berge.jpg",
+        "/home/luke/Bilder/Wallpapers/wiese_und_rote_berge.jpg",
+        "/home/luke/Bilder/Wallpapers/klippen1.jpg"
+    ]);*/
 }
 
 function addListEntry(model, path, number){
@@ -45,12 +53,13 @@ function buildPrefsWidget(){
     // The model for the tree:
     // See (and next page): http://scentric.net/tutorial/sec-treeviewcol-renderer.html
     let list_model = new Gtk.ListStore();
-    list_model.set_column_types([GObject.TYPE_INT, Pixbuf.Pixbuf]);
+    list_model.set_column_types([GObject.TYPE_INT, Pixbuf.Pixbuf]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
     // The tree itself:
     let image_tree = new Gtk.TreeView({
         expand: true,
         model: list_model
     });
+    list_selection = image_tree.get_selection();
     // The number-column
     let number_col = new Gtk.TreeViewColumn({
         title: "#"
@@ -72,8 +81,8 @@ function buildPrefsWidget(){
     let tree_scroll = new Gtk.ScrolledWindow();
     tree_scroll.add(image_tree);
     frame.add(tree_scroll);
+
     // Fill the Model:
-    let image_list = settings.getImageList();
     for (let i = 0; i < image_list.length; i++){
         addListEntry(list_model, image_list[i], i+1);
     }
@@ -84,32 +93,116 @@ function buildPrefsWidget(){
     });
     frame.add(toolbar);
 
+    // Move the selected wallpaper up in the list.
     let move_up_button = new Gtk.Button({
         image: new Gtk.Image({
             icon_name: 'go-up'
         })
     });
+    move_up_button.connect('clicked', function(){
+        let [ isSelected, model, iterator_current ] = list_selection.get_selected();
+        if (isSelected){
+            let iterator_up = iterator_current.copy();
+            list_model.iter_previous(iterator_current);
+            list_model.swap(iterator_current, iterator_up);
+            // Manually fire the "row-changed"-event so "button_state_callback" gets triggered!
+            list_model.row_changed(list_model.get_path(iterator_current), iterator_current);
+        }
+    });
     toolbar.add(move_up_button);
+
+    // Move the selected wallpaper down in the list.
     let move_down_button = new Gtk.Button({
         image: new Gtk.Image({
             icon_name: 'go-down'
         }),
         margin_bottom: 4
     });
+    move_down_button.connect('clicked', function(){
+        let [ isSelected, model, iterator_current ] = list_selection.get_selected();
+        if (isSelected){
+            let iterator_down = iterator_current.copy();
+            list_model.iter_next(iterator_current);
+            list_model.swap(iterator_current, iterator_down);
+            // Manually fire the "row-changed"-event so "button_state_callback" gets triggered!
+            list_model.row_changed(list_model.get_path(iterator_current), iterator_current);
+        }
+    });
     toolbar.add(move_down_button);
 
+    // Add a Wallpaper to the list.
     let add_button = new Gtk.Button({
         image: new Gtk.Image({
             icon_name: 'list-add'
         })
     });
+    add_button.connect('clicked', function(){
+        var filter = new Gtk.FileFilter();
+        filter.add_pixbuf_formats();
+        let chooser = new Gtk.FileChooserDialog({
+            title: "Select the new wallpapers.",
+            action: Gtk.FileChooserAction.OPEN,
+            filter: filter,
+            select_multiple: true
+        });
+        chooser.add_button(Gtk.STOCK_CANCEL, 0);
+        chooser.add_button(Gtk.STOCK_OPEN, 1);
+        chooser.set_default_response(1);
+        if (chooser.run() === 1){
+            let files = chooser.get_filenames();
+            // Add the selected files:
+            for (let i = 0; i < files.length; i++){
+                addListEntry(list_model, files[i], i);
+            }
+        }
+        chooser.destroy();
+    });
     toolbar.add(add_button);
+
+    // Remove a Wallpaper from the list:
     let remove_button = new Gtk.Button({
         image: new Gtk.Image({
             icon_name: 'list-remove'
         })
     });
+    remove_button.connect('clicked', function(){
+        let [ isSelected, model, iterator ] = list_selection.get_selected();
+        if (isSelected){
+            list_model.remove(iterator);
+        }
+    });
     toolbar.add(remove_button);
+
+    // Check if we can move up/down and deactivate buttons if not.
+    let button_state_callback = function(){
+        // Check if we have data:
+        if (list_model.iter_n_children(null) <= 1){
+            move_up_button.set_sensitive(false);
+            move_down_button.set_sensitive(false);
+            return;
+        }
+        // Otherwise, we have data:
+        let [ isSelected, model, iterator ] = list_selection.get_selected();
+        // Something needs to be selected:
+        if (!isSelected) return;
+
+        // We have a selection and data:
+        if (list_model.iter_next(iterator.copy()) === false){
+            // We're at the bottom:
+            move_up_button.set_sensitive(true);
+            move_down_button.set_sensitive(false);
+        } else if (list_model.iter_previous(iterator.copy()) === false){
+            // We're at the top:
+            move_up_button.set_sensitive(false);
+            move_down_button.set_sensitive(true);
+        } else {
+            // We're in the middle, can move up and down:
+            move_up_button.set_sensitive(true);
+            move_down_button.set_sensitive(true);
+        }
+    };
+    list_selection.connect('changed', button_state_callback);
+    list_model.connect('row-changed', button_state_callback);
 
     frame.show_all();
     return frame;
