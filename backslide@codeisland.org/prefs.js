@@ -11,20 +11,16 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
 
 let settings;
-let image_list;
 let list_selection;
+let visible = false;
 /**
  * Called right after the file was loaded.
  */
 function init(){
     settings = new Pref.Settings();
-    image_list = settings.getImageList();
-    /*settings.setImageList([
-        "/home/luke/Bilder/Wallpapers/fluss_und_berge.jpg",
-        "/home/luke/Bilder/Wallpapers/wiese_und_rote_berge.jpg",
-        "/home/luke/Bilder/Wallpapers/klippen1.jpg"
-    ]);*/
 }
+
+// TODO Keep numbering consistent (with row-changes).
 
 function addListEntry(model, path, number){
     // Load and scale the image from the given path:
@@ -38,7 +34,7 @@ function addListEntry(model, path, number){
     if (image === undefined) return;
     // Append to the list:
     let iterator = model.append();
-    model.set(iterator, [0,1], [number, image]);
+    model.set(iterator, [0,1,2], [number, image, path]);
 }
 
 /**
@@ -53,7 +49,9 @@ function buildPrefsWidget(){
     // The model for the tree:
     // See (and next page): http://scentric.net/tutorial/sec-treeviewcol-renderer.html
     let list_model = new Gtk.ListStore();
-    list_model.set_column_types([GObject.TYPE_INT, Pixbuf.Pixbuf]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
+    list_model.set_column_types([GObject.TYPE_INT, Pixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
+    // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
+
     // The tree itself:
     let image_tree = new Gtk.TreeView({
         expand: true,
@@ -83,6 +81,7 @@ function buildPrefsWidget(){
     frame.add(tree_scroll);
 
     // Fill the Model:
+    let image_list = settings.getImageList();
     for (let i = 0; i < image_list.length; i++){
         addListEntry(list_model, image_list[i], i+1);
     }
@@ -203,6 +202,25 @@ function buildPrefsWidget(){
     };
     list_selection.connect('changed', button_state_callback);
     list_model.connect('row-changed', button_state_callback);
+
+    // Store the changes in the settings:
+    frame.connect('screen_changed', function(widget){
+        if (!visible){
+            visible = true; // Set this to prevent storing the list on initialisation of the widget.
+            return;
+        }
+        visible = false;
+        // Save the list:
+        let [ success, iterator ] = list_model.get_iter_first();
+        let list = [];
+        if (success){
+            do {
+                let img_path = list_model.get_value(iterator, 2);
+                list.push(img_path);
+            } while (list_model.iter_next(iterator));
+        }
+        settings.setImageList(list);
+    });
 
     frame.show_all();
     return frame;
