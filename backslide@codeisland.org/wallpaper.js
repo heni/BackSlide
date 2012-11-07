@@ -1,15 +1,18 @@
-/**
-  * This is where the list of wallpapers is maintained and the current
-  *  wallpaper is set.
-  * This also includes jumping to next/previous wallpaper.
-  * All Wallpaper-functionality is bundled in this class.
-  */
 const Lang = imports.lang;
 const gio = imports.gi.Gio;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Pref = Me.imports.settings;
 
+/**
+ * This is where the list of wallpapers is maintained and the current
+ *  wallpaper is set.
+ * This also includes jumping to next/previous wallpaper.
+ * All Wallpaper-functionality is bundled in this class.
+ */
 const Wallpaper = new Lang.Class({
     Name: "Wallpaper",
 
+    _settings: {},
     _image_stack: [],
 
     /**
@@ -17,6 +20,7 @@ const Wallpaper = new Lang.Class({
      * @private
      */
     _init: function(){
+        this._settings = new Pref.Settings();
         this._loadStack();
     },
 
@@ -26,7 +30,7 @@ const Wallpaper = new Lang.Class({
      * @private
      */
     _loadStack: function(){
-        // TODO Reload the image-stack:
+        this._image_stack = this._settings.getImageList();
     },
 
     /**
