@@ -14,6 +14,7 @@ const Wallpaper = new Lang.Class({
 
     _settings: {},
     _image_stack: [],
+    // TODO Connect to settings-changes on the array and reload the image-stack!
 
     /**
      * Constructs a new class to do all the wallpaper-related work.
@@ -31,6 +32,42 @@ const Wallpaper = new Lang.Class({
      */
     _loadStack: function(){
         this._image_stack = this._settings.getImageList();
+    },
+
+    /**
+     * Sorts the image-list for itterative access.
+     */
+    order: function(){
+        // TODO Callback because next image changed.
+        this._loadStack(); // Simply reload for now.
+    },
+
+    /**
+     * Shuffle the image-list for random access.
+     */
+    shuffle: function(){
+        // TODO Callback because next image changed.
+        this._loadStack();
+        this._fisherYates(this._image_stack);
+    },
+
+    /**
+     * Implementation of the "Fisher–Yates shuffle"-algorithm, taken from
+     *  http://stackoverflow.com/q/2450954/717341
+     * @param array the array to shuffle.
+     * @return {Boolean} false if the arrays length is 0.
+     * @private
+     */
+    _fisherYates: function(array) {
+        var i = array.length, j, tempi, tempj;
+        if ( i == 0 ) return false;
+        while ( --i ) {
+            j       = Math.floor( Math.random() * ( i + 1 ) );
+            tempi   = array[i];
+            tempj   = array[j];
+            array[i] = tempj;
+            array[j] = tempi;
+        }
     },
 
     /**

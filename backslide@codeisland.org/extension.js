@@ -58,9 +58,9 @@ const BackSlideEntry = new Lang.Class({
         });
         control.connect("order-state-changed", Lang.bind(this, function(source, state){
             if (state.name === Widget.RANDOM_STATE){
-                // TODO Shuffle the wallpaper-list
+                wallpaper_control.shuffle();
             } else if (state.name === Widget.LOOP_STATE){
-                // TODO Order the wallpaper-list
+                wallpaper_control.order();
             }
             // Also write the new setting:
             settings.setRandom((state.name === Widget.RANDOM_STATE));
