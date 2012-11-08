@@ -38,6 +38,10 @@ const BackSlideEntry = new Lang.Class({
         );
         this.menu.addMenuItem(control);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        let delay_slider_label = new Widget.LabelWidget("Delay ("+settings.getDelay()+" Minutes)");
+        this.menu.addMenuItem(delay_slider_label);
+        let delay_slider = new Widget.DelaySlider(settings.getDelay() );
+        this.menu.addMenuItem(delay_slider);
 
         // React on control-interaction:
         control.connect("next-wallpaper", function(){
@@ -61,6 +65,12 @@ const BackSlideEntry = new Lang.Class({
             // Also write the new setting:
             settings.setRandom((state.name === Widget.RANDOM_STATE));
         }));
+
+        // React on delay-change:
+        delay_slider.connect('value-changed', function(){
+            settings.setDelay(delay_slider.getMinutes());
+            delay_slider_label.setText("Delay ("+delay_slider.getMinutes()+" Minutes)")
+        })
     }
 });
 

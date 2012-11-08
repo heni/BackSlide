@@ -225,6 +225,54 @@ const StateControlButton = new Lang.Class({
 // -------------------------------------------------------------------------------
 
 /**
+ * Widget for setting the delay for the next Wallpaper-change.
+ * @type {Lang.Class}
+ */
+const DelaySlider = new Lang.Class({
+    Name: 'DelaySlider',
+    Extends: PopupMenu.PopupSliderMenuItem,
+
+    _MINUTES_MAX: 60,
+    _MINUTES_MIN: 5,
+
+    /**
+     * Construct a new Widget.
+     * @private
+     */
+    _init: function(minutes){
+        this.parent(0); // value MUST be specified!
+        this.setMinutes(minutes); // Set the real value.
+    },
+
+    /**
+     * Set the value of the slider to x minutes.
+     * @param minutes the value in minutes between _MINUTES_MAX and _MINUTES_MIN
+     */
+    setMinutes: function(minutes){
+        // Validate:
+        if (isNaN(minutes) || minutes < this._MINUTES_MIN || minutes > this._MINUTES_MAX){
+            throw TypeError("'minutes' should be an integer between "
+                +this._MINUTES_MIN+" and "+this._MINUTES_MAX+"");
+        }
+        // calculate and set value:
+        let value = minutes / (this._MINUTES_MAX - this._MINUTES_MIN); // Value is set in percent, e.g 0.5 = 50%
+        this.setValue(value.toFixed(2));
+    },
+
+    /**
+     * Get the value in minutes from the slider.
+     * @return int the value in minutes.
+     */
+    getMinutes: function(){
+        // Get and calculate:
+        let minutes = Math.floor(this._value * (this._MINUTES_MAX - this._MINUTES_MIN));
+        return (minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : minutes;
+    }
+});
+
+// -------------------------------------------------------------------------------
+
+/**
  * A simple label which only displays the given text.
  * @type {Lang.Class}
  */
@@ -241,5 +289,15 @@ const LabelWidget = new Lang.Class({
             text: text
         });
         this.addActor(this._label);
+    },
+
+    /**
+     * Set the text for this label.
+     * @param text the new text.
+     */
+    setText: function(text){
+        if (this._label.clutter_text){
+            this._label.text = text.toString();
+        }
     }
 });
