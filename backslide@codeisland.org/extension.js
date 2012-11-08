@@ -33,6 +33,10 @@ const BackSlideEntry = new Lang.Class({
         this.actor.add_style_class_name('panel-status-button');
 
         // Add the Widgets to the menu:
+        this.menu.addMenuItem(new Widget.LabelWidget("Up Next"));
+        let next_wallpaper = new Widget.NextWallpaperWidget();
+        //next_wallpaper.setNextWallpaper("/home/luke/Bilder/Wallpapers/fluss_und_berge.jpg");
+        this.menu.addMenuItem(next_wallpaper);
         let control = new Widget.WallpaperControlWidget(
             settings.isRandom()
         );
@@ -46,7 +50,7 @@ const BackSlideEntry = new Lang.Class({
         // React on control-interaction:
         control.connect("next-wallpaper", function(){
             wallpaper_control.next(function(next){
-                // TODO show the next wallpaper to be displayed.
+                next_wallpaper.setNextWallpaper(next);
             });
         });
         control.connect("timer-state-changed", function(source, state){

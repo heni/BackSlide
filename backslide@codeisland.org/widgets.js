@@ -4,6 +4,73 @@
 const Lang = imports.lang;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
+const Clutter = imports.gi.Clutter;
+const Mainloop = imports.mainloop;
+
+/**
+ * Shows a preview of the next wallpaper to be set.
+ * @type {Lang.Class}
+ */
+const NextWallpaperWidget = new Lang.Class({
+    Name: "NextWallpaperWidget",
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    _init: function(){
+        this.parent({
+            reactive: false
+        });
+
+        // Overall Box:
+        this._box = new St.BoxLayout({
+            vertical: true
+        });
+        this.addActor(this._box, {
+            span: -1,
+            align: St.Align.MIDDLE
+        });
+        // The computer-picture:
+        this._icon = new St.Icon({
+            icon_name: "video-display",
+            icon_type: St.IconType.FULLCOLOR, // Load it with full-color, not as symbol
+            icon_size: 220
+        });
+        this._icon_bin = new St.Bin({
+            child: this._icon,
+            y_fill: false,  // The icon has much space on top/bottom,
+            height: 180     //  therefor, crop it.
+        });
+        this._box.add(this._icon_bin);
+        // The next Wallpaper ("in" the screen):
+        this._wallpaper = new St.Bin({
+            style_class: "overlay"
+        });
+        this._box.add(this._wallpaper);
+
+        // Do the trick for overlapping:
+        // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
+        let box = this._wallpaper;
+        Mainloop.idle_add(function () {
+            box.y = 0;
+            box.anchor_y = box.height/2;
+        });
+    },
+
+    /**
+     * Load the next image to be set as the wallpaper into the widget.
+     * @param path the path to the image to preview.
+     */
+    setNextWallpaper: function(path){
+        let texture = new Clutter.Texture({
+            filename: path,
+            filter_quality: Clutter.TextureQuality.HIGH,
+            width: 178,
+            height: 106
+        });
+        this._wallpaper.set_child(texture);
+    }
+});
+
+// -------------------------------------------------------------------------------
 
 const STOP_TIMER_STATE = "stop";
 const START_TIMER_STATE = "start";

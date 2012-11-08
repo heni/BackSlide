@@ -4,3 +4,8 @@
 .controls{
     spacing: 5px;
 }
+
+.overlay{
+    padding-top: 144px;
+    padding-left: 21px;
+}
