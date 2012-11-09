@@ -46,6 +46,7 @@ const BackSlideEntry = new Lang.Class({
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.menu.addMenuItem(delay_slider);
+        this.menu.addMenuItem(new Widget.OpenPrefsWidget(this.menu));
 
         // React on control-interaction:
         control.connect("next-wallpaper", function(){

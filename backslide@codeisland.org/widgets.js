@@ -6,6 +6,45 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
+const GLib = imports.gi.GLib;
+
+/**
+ * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
+ * @type {Lang.Class}
+ */
+const OpenPrefsWidget = new Lang.Class({
+    Name: "OpenPrefsWidget",
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    /**
+     * Creates a new Button to open the prefs of this extension.
+     * @param menu the menu to be toggled when the button is pressed.
+     * @private
+     */
+    _init: function(menu){
+        this.parent();
+        this._menu = menu;
+        // The Label:
+        this._button = new St.Button({
+            label: "Manage Wallpapers"
+        });
+        this.addActor(this._button, {
+            span: -1,
+            align: St.Align.MIDDLE
+        });
+        // Connect:
+        this._button.connect('clicked', Lang.bind(this, this._onClick));
+    },
+
+    _onClick: function(){
+        // TODO Dirty solution. Use DBus?
+        if (GLib.spawn_command_line_async("gnome-shell-extension-prefs backslide@codeisland.org")){
+            this._menu.toggle(); // Toggle the menu.
+        }
+    }
+});
+
+// -------------------------------------------------------------------------------
 
 /**
  * Shows a preview of the next wallpaper to be set.
