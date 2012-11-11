@@ -9,6 +9,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Widget = Me.imports.widgets;
 const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
+const Time = Me.imports.timer;
 
 /**
  * The new entry in the gnome3 status-area.
@@ -35,6 +36,7 @@ const BackSlideEntry = new Lang.Class({
         // Add the Widgets to the menu:
         this.menu.addMenuItem(new Widget.LabelWidget("Up Next"));
         let next_wallpaper = new Widget.NextWallpaperWidget();
+        // TODO Load from wallpaper-control!
         //next_wallpaper.setNextWallpaper("/home/luke/Bilder/Wallpapers/fluss_und_berge.jpg");
         this.menu.addMenuItem(next_wallpaper);
         let control = new Widget.WallpaperControlWidget(
@@ -49,16 +51,22 @@ const BackSlideEntry = new Lang.Class({
         this.menu.addMenuItem(new Widget.OpenPrefsWidget(this.menu));
 
         // React on control-interaction:
-        control.connect("next-wallpaper", function(){
+        let next_wallpaper_callback = function(){
             wallpaper_control.next(function(next){
                 next_wallpaper.setNextWallpaper(next);
             });
+        };
+        timer.setCallback(next_wallpaper_callback);
+        control.connect("next-wallpaper", function(){
+            next_wallpaper_callback();
+            timer.restart();
         });
+
         control.connect("timer-state-changed", function(source, state){
             if (state.name === Widget.START_TIMER_STATE){
-                // TODO Start/Restart the timer.
+                timer.begin();
             } else if (state.name === Widget.STOP_TIMER_STATE){
-                // TODO Stop the widget-timer.
+                timer.stop();
             }
         });
         control.connect("order-state-changed", Lang.bind(this, function(source, state){
@@ -75,7 +83,7 @@ const BackSlideEntry = new Lang.Class({
         delay_slider.connect('value-changed', function(){
             settings.setDelay(delay_slider.getMinutes());
             delay_slider_label.setText("Delay ("+delay_slider.getMinutes()+" Minutes)")
-        })
+        });
     }
 });
 
@@ -85,10 +93,12 @@ const BackSlideEntry = new Lang.Class({
 function init() {
     wallpaper_control = new Wall.Wallpaper();
     settings = new Pref.Settings();
+    timer = new Time.Timer();
 }
 
 let wallpaper_control;
 let settings;
+let timer;
 let menu_entry;
 
 /**
@@ -97,6 +107,7 @@ let menu_entry;
 function enable() {
     menu_entry = new BackSlideEntry();
     Main.panel.addToStatusArea('backslide', menu_entry);
+    timer.begin();
 }
 
 /**
@@ -104,4 +115,5 @@ function enable() {
  */
 function disable() {
     menu_entry.destroy();
+    timer.stop();
 }

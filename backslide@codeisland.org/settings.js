@@ -2,6 +2,8 @@ const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
+const KEY_DELAY = "delay";
+const KEY_RANDOM = "random";
 /**
  * This class takes care of reading/writing the settings from/to the GSettings backend.
  * @type {Lang.Class}
@@ -30,6 +32,31 @@ const Settings = new Lang.Class({
 
         this._setting = new Gio.Settings({
             settings_schema: schema
+        });
+    },
+
+    /**
+     * <p>Binds the given 'callback'-function to the "changed"-signal on the given
+     *  key.</p>
+     * <p>The 'callback'-function is passed an argument which holds the new
+     *  value of 'key'. The argument is of type "GLib.Variant". Given that the
+     *  receiver knows the internal type, use one of the get_XX()-methods to get
+     *  it's actual value.</p>
+     * @see http://www.roojs.com/seed/gir-1.2-gtk-3.0/gjs/GLib.Variant.html
+     * @param key the key to watch for changes.
+     * @param callback the callback-function to call.
+     */
+    bindKey: function(key, callback){
+        // Validate:
+        if (key === undefined || key === null || typeof key !== "string"){
+            throw TypeError("The 'key' should be a string.");
+        }
+        if (callback === undefined || callback === null || typeof callback !== "function"){
+            throw TypeError("'callback' needs to be a function.");
+        }
+        // Bind:
+        this._setting.connect("changed::"+key, function(source, key){
+            callback( source.get_value(key) );
         });
     },
 
