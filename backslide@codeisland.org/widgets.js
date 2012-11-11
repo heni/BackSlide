@@ -160,7 +160,7 @@ const WallpaperControlWidget = new Lang.Class({
         );
         order_button.setState((isRandom === true) ? RANDOM_STATE : LOOP_STATE);
         this.box.add_actor(order_button);
-        this.box.add_actor(new StateControlButton(
+        let timer_button = new StateControlButton(
             [
                 {
                     name: STOP_TIMER_STATE,
@@ -170,7 +170,9 @@ const WallpaperControlWidget = new Lang.Class({
                     icon: "media-playback-start"
                 }
             ], Lang.bind(this, this._timerStateChanged)
-        ));
+        );
+        timer_button.setState(STOP_TIMER_STATE);
+        this.box.add_actor(timer_button);
         this.box.add_actor(new ControlButton("media-skip-forward", Lang.bind(this, this._nextWallpaper)) );
     },
 
@@ -299,6 +301,10 @@ const StateControlButton = new Lang.Class({
      * @private
      */
     _clicked: function(){
+        // Call-Back:
+        if (this._callback !== null){
+            this._callback( this._states[this._state_index] );
+        }
         // Set new state:
         if (this._state_index+1 >= this._states.length){
             this._state_index = 0;
@@ -307,10 +313,6 @@ const StateControlButton = new Lang.Class({
         }
         // change Icon.
         this.setIcon( this._states[this._state_index].icon );
-        // Call-Back:
-        if (this._callback !== null){
-            this._callback( this._states[this._state_index] );
-        }
     },
 
     /**
