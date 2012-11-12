@@ -14,7 +14,12 @@ const Wallpaper = new Lang.Class({
 
     _settings: {},
     _image_stack: [],
-    // TODO Connect to settings-changes on the array and reload the image-stack!
+    // TODO Re-implement the stack as queue
+    // TODO Append new "rounds" to the queue (in random mode, when no preview available because end).
+    // TODO In next(), check if new item after next (for preview) is available, otherwise ^
+    // TODO Reimplement random/loop as flags and do sort/shuffle in _loadStack()
+    // TODO When mode changes, clear queue and reload ^
+    // TODO When shuffling the queue, check if first item does not match current wallpaper (compare GSettings) and pop if nessesary!
 
     /**
      * Constructs a new class to do all the wallpaper-related work.
@@ -23,6 +28,11 @@ const Wallpaper = new Lang.Class({
     _init: function(){
         this._settings = new Pref.Settings();
         this._loadStack();
+        // Catch changes happening in the config-tool and update the list
+        this._settings.bindKey(Pref.KEY_IMAGE_LIST, Lang.bind(this, function(){
+            print("new wallpapers");
+            this._loadStack();
+        }));
     },
 
     /**
@@ -68,6 +78,7 @@ const Wallpaper = new Lang.Class({
             array[i] = tempj;
             array[j] = tempi;
         }
+        return true;
     },
 
     /**
@@ -89,7 +100,7 @@ const Wallpaper = new Lang.Class({
         // Set the wallpaper:
         this._setWallpaper(wallpaper);
         // Callback:
-        let next_wallpaper = this._image_stack[this._image_stack.length-1]; // TODO This requires at least 2 images!
+        let next_wallpaper = this._image_stack[this._image_stack.length-1]; // TODO This only works with 2 items in the stack!
         callback(next_wallpaper);
     },
 
@@ -113,7 +124,7 @@ const Wallpaper = new Lang.Class({
         if (background.is_writable("picture-uri")){
             // Set a new Background-Image (should show up immediately):
             if (background.set_string("picture-uri", "file://"+path) ){
-                gio.Settings.sync() // Necessary: http://stackoverflow.com/questions/9985140
+                gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
                 return true;
             } else {
                 throw "Couldn't set the key!";
