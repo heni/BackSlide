@@ -24,14 +24,15 @@ const Wallpaper = new Lang.Class({
         this._settings = new Pref.Settings();
         // Catch changes happening in the config-tool and update the list
         this._settings.bindKey(Pref.KEY_IMAGE_LIST, Lang.bind(this, function(){
+            this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
             this._loadQueue();
+            this._removeDuplicate();
+            this._triggerPreviewCallback();
         }));
         this._is_random = this._settings.isRandom();
         // Load images:
         this._loadQueue();
-        if (this._settings.getWallpaper() === this._image_queue[0]){
-            this._image_queue.shift();
-        }
+        this._removeDuplicate();
     },
 
     /**
@@ -51,8 +52,7 @@ const Wallpaper = new Lang.Class({
         // Set the callback:
         this._preview_callback = callback;
         // Callback:
-        let next_wallpaper = this._image_queue[0];
-        this._preview_callback(next_wallpaper);
+        this._triggerPreviewCallback();
     },
 
     /**
@@ -79,21 +79,38 @@ const Wallpaper = new Lang.Class({
     },
 
     /**
+     * If the first item from the current image-queue matches the wallpaper which is
+     *  currently set, the item will be removed from the list.
+     * @private
+     */
+    _removeDuplicate: function(){
+        if (this._settings.getWallpaper() === this._image_queue[0]){
+            this._image_queue.shift();
+        }
+    },
+
+    /**
+     * Checks whether a preview-callback exists and calls it with the next wallpaper.
+     * @see #setPreviewCallback
+     * @private
+     */
+    _triggerPreviewCallback: function(){
+        if (this._preview_callback !== null){
+            let next_wallpaper = this._image_queue[0];
+            this._preview_callback(next_wallpaper);
+        }
+    },
+
+    /**
      * Sorts the image-list for iterative access.
      */
     order: function(){
         this._is_random = false;
         this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
         this._loadQueue();
-        // Check if first item is same as current wallpaper and remove it from the list:
-        if (this._settings.getWallpaper() === this._image_queue[0]){
-            this._image_queue.shift();
-        }
+        this._removeDuplicate();
         // Callback:
-        if (this._preview_callback !== null){
-            let next_wallpaper = this._image_queue[0];
-            this._preview_callback(next_wallpaper);
-        }
+        this._triggerPreviewCallback();
     },
 
     /**
@@ -104,10 +121,7 @@ const Wallpaper = new Lang.Class({
         // Shuffle the current queue
         this._fisherYates(this._image_queue);
         // Callback:
-        if (this._preview_callback !== null){
-            let next_wallpaper = this._image_queue[0];
-            this._preview_callback(next_wallpaper);
-        }
+        this._triggerPreviewCallback();
     },
 
     /**
@@ -142,10 +156,7 @@ const Wallpaper = new Lang.Class({
         // Set the wallpaper:
         this._settings.setWallpaper(wallpaper);
         // Callback:
-        if (this._preview_callback !== null){
-            let next_wallpaper = this._image_queue[0];
-            this._preview_callback(next_wallpaper);
-        }
+        this._triggerPreviewCallback();
     }
 
 });
