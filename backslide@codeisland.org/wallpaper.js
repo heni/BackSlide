@@ -15,7 +15,6 @@ const Wallpaper = new Lang.Class({
     _image_queue: [],
     _is_random: false,
     _preview_callback: null,
-    // TODO When reloading the queue (on start, change to order-mode), check if first item does not match current wallpaper (compare GSettings) and pop if necessary!
 
     /**
      * Constructs a new class to do all the wallpaper-related work.
@@ -30,6 +29,9 @@ const Wallpaper = new Lang.Class({
         this._is_random = this._settings.isRandom();
         // Load images:
         this._loadQueue();
+        if (this._settings.getWallpaper() === this._image_queue[0]){
+            this._image_queue.shift();
+        }
     },
 
     /**
@@ -83,7 +85,11 @@ const Wallpaper = new Lang.Class({
         this._is_random = false;
         this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
         this._loadQueue();
-        // TODO Check if first is same image as current and pop
+        // Check if first item is same as current wallpaper and remove it from the list:
+        if (this._settings.getWallpaper() === this._image_queue[0]){
+            this._image_queue.shift();
+        }
+        // Callback:
         if (this._preview_callback !== null){
             let next_wallpaper = this._image_queue[0];
             this._preview_callback(next_wallpaper);
