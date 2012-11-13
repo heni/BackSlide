@@ -13,13 +13,11 @@ const Wallpaper = new Lang.Class({
     Name: "Wallpaper",
 
     _settings: {},
-    _image_stack: [],
-    // TODO Re-implement the stack as queue
-    // TODO Append new "rounds" to the queue (in random mode, when no preview available because end).
-    // TODO In next(), check if new item after next (for preview) is available, otherwise ^
-    // TODO Reimplement random/loop as flags and do sort/shuffle in _loadStack()
-    // TODO When mode changes, clear queue and reload ^
-    // TODO When shuffling the queue, check if first item does not match current wallpaper (compare GSettings) and pop if nessesary!
+    _image_queue: [],
+    _is_random: false,
+    // TODO Move _setWallpaper() to Settings-class and add new "getWallpaper()"-method for V
+    // TODO When reloading the queue (on start, change to order-mode), check if first item does not match current wallpaper (compare GSettings) and pop if necessary!
+    // TODO Add setPreviewCallback()-method to set callback for shuffle()/order()/next() ^
 
     /**
      * Constructs a new class to do all the wallpaper-related work.
@@ -27,12 +25,13 @@ const Wallpaper = new Lang.Class({
      */
     _init: function(){
         this._settings = new Pref.Settings();
-        this._loadStack();
         // Catch changes happening in the config-tool and update the list
         this._settings.bindKey(Pref.KEY_IMAGE_LIST, Lang.bind(this, function(){
-            print("new wallpapers");
-            this._loadStack();
+            this._loadQueue();
         }));
+        this._is_random = this._settings.isRandom();
+        // Load images:
+        this._loadQueue();
     },
 
     /**
@@ -40,25 +39,43 @@ const Wallpaper = new Lang.Class({
      *  randomize it, if necessary.
      * @private
      */
-    _loadStack: function(){
-        this._image_stack = this._settings.getImageList();
+    _loadQueue: function(){
+        let list = this._settings.getImageList();
+        // Check if shuffle:
+        if (this._is_random === true){
+            this._fisherYates(list);
+            // Check if last element in queue is same as first in list:
+            if (this._image_queue[this._image_queue.length-1] === list[0]){
+                // Move duplicate to the end of the new list:
+                let duplicate = list.shift();
+                list.push(duplicate);
+            }
+        }
+        // Append to queue:
+        for (let i in list){
+            this._image_queue.push(list[i]);
+        }
     },
 
     /**
-     * Sorts the image-list for itterative access.
+     * Sorts the image-list for iterative access.
      */
     order: function(){
-        // TODO Callback because next image changed.
-        this._loadStack(); // Simply reload for now.
+        this._is_random = false;
+        this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
+        this._loadQueue();
+        // TODO Check if first is same image as current and pop
+        // TODO Trigger Callback.
     },
 
     /**
      * Shuffle the image-list for random access.
      */
     shuffle: function(){
-        // TODO Callback because next image changed.
-        this._loadStack();
-        this._fisherYates(this._image_stack);
+        this._is_random = true;
+        // Shuffle the current queue
+        this._fisherYates(this._image_queue);
+        // TODO Trigger callback
     },
 
     /**
@@ -91,16 +108,15 @@ const Wallpaper = new Lang.Class({
         if (callback === undefined || callback === null || typeof callback !== "function"){
             throw TypeError('A callback-function needs to be assigned!');
         }
-        let wallpaper = this._image_stack.pop();
         // Check if there where any items left in the stack:
-        if (wallpaper === undefined){
-            this._loadStack();
-            wallpaper = this._image_stack.pop();
+        if (this._image_queue.length <= 2){
+            this._loadQueue(); // Load new wallpapers
         }
+        let wallpaper = this._image_queue.shift();
         // Set the wallpaper:
         this._setWallpaper(wallpaper);
         // Callback:
-        let next_wallpaper = this._image_stack[this._image_stack.length-1]; // TODO This only works with 2 items in the stack!
+        let next_wallpaper = this._image_queue[0];
         callback(next_wallpaper);
     },
 
