@@ -36,8 +36,9 @@ const BackSlideEntry = new Lang.Class({
         // Add the Widgets to the menu:
         this.menu.addMenuItem(new Widget.LabelWidget("Up Next"));
         let next_wallpaper = new Widget.NextWallpaperWidget();
-        // TODO Load from wallpaper-control!
-        //next_wallpaper.setNextWallpaper("/home/luke/Bilder/Wallpapers/fluss_und_berge.jpg");
+        wallpaper_control.setPreviewCallback(function(path){
+            next_wallpaper.setNextWallpaper(path);
+        });
         this.menu.addMenuItem(next_wallpaper);
         let control = new Widget.WallpaperControlWidget(
             settings.isRandom()
@@ -51,14 +52,11 @@ const BackSlideEntry = new Lang.Class({
         this.menu.addMenuItem(new Widget.OpenPrefsWidget(this.menu));
 
         // React on control-interaction:
-        let next_wallpaper_callback = function(){
-            wallpaper_control.next(function(next){
-                next_wallpaper.setNextWallpaper(next);
-            });
-        };
-        timer.setCallback(next_wallpaper_callback);
+        timer.setCallback(function(){
+            wallpaper_control.next();
+        });
         control.connect("next-wallpaper", function(){
-            next_wallpaper_callback();
+            wallpaper_control.next();
             timer.restart();
         });
 

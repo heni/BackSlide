@@ -15,9 +15,9 @@ const Wallpaper = new Lang.Class({
     _settings: {},
     _image_queue: [],
     _is_random: false,
+    _preview_callback: null,
     // TODO Move _setWallpaper() to Settings-class and add new "getWallpaper()"-method for V
     // TODO When reloading the queue (on start, change to order-mode), check if first item does not match current wallpaper (compare GSettings) and pop if necessary!
-    // TODO Add setPreviewCallback()-method to set callback for shuffle()/order()/next() ^
 
     /**
      * Constructs a new class to do all the wallpaper-related work.
@@ -32,6 +32,27 @@ const Wallpaper = new Lang.Class({
         this._is_random = this._settings.isRandom();
         // Load images:
         this._loadQueue();
+    },
+
+    /**
+     * <p>Set the function to be called, when the next image changes (due to a
+     *  call to next(), shuffle() or order() ).</p>
+     * <p>Calling this method will also cause the callback-function to be called
+     *  immediately!</p>
+     * @param callback the function to be called when the switch is done.
+     *  This function will be passed an argument with the path of the next
+     *  wallpaper.
+     */
+    setPreviewCallback: function(callback){
+        // Validate:
+        if (callback === undefined || callback === null || typeof callback !== "function"){
+            throw TypeError("'callback' should be a function!");
+        }
+        // Set the callback:
+        this._preview_callback = callback;
+        // Callback:
+        let next_wallpaper = this._image_queue[0];
+        this._preview_callback(next_wallpaper);
     },
 
     /**
@@ -65,7 +86,10 @@ const Wallpaper = new Lang.Class({
         this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
         this._loadQueue();
         // TODO Check if first is same image as current and pop
-        // TODO Trigger Callback.
+        if (this._preview_callback !== null){
+            let next_wallpaper = this._image_queue[0];
+            this._preview_callback(next_wallpaper);
+        }
     },
 
     /**
@@ -75,7 +99,11 @@ const Wallpaper = new Lang.Class({
         this._is_random = true;
         // Shuffle the current queue
         this._fisherYates(this._image_queue);
-        // TODO Trigger callback
+        // Callback:
+        if (this._preview_callback !== null){
+            let next_wallpaper = this._image_queue[0];
+            this._preview_callback(next_wallpaper);
+        }
     },
 
     /**
@@ -100,14 +128,8 @@ const Wallpaper = new Lang.Class({
 
     /**
      * Slide to the next wallpaper in the list.
-     * @param callback the function to be called when the switch is done.
-     *  This function will be passed an argument with the path of the next
-     *  wallpaper.
      */
-    next: function(callback){
-        if (callback === undefined || callback === null || typeof callback !== "function"){
-            throw TypeError('A callback-function needs to be assigned!');
-        }
+    next: function(){
         // Check if there where any items left in the stack:
         if (this._image_queue.length <= 2){
             this._loadQueue(); // Load new wallpapers
@@ -116,8 +138,10 @@ const Wallpaper = new Lang.Class({
         // Set the wallpaper:
         this._setWallpaper(wallpaper);
         // Callback:
-        let next_wallpaper = this._image_queue[0];
-        callback(next_wallpaper);
+        if (this._preview_callback !== null){
+            let next_wallpaper = this._image_queue[0];
+            this._preview_callback(next_wallpaper);
+        }
     },
 
     /**
