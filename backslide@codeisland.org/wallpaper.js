@@ -1,5 +1,4 @@
 const Lang = imports.lang;
-const gio = imports.gi.Gio;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
 
@@ -16,7 +15,6 @@ const Wallpaper = new Lang.Class({
     _image_queue: [],
     _is_random: false,
     _preview_callback: null,
-    // TODO Move _setWallpaper() to Settings-class and add new "getWallpaper()"-method for V
     // TODO When reloading the queue (on start, change to order-mode), check if first item does not match current wallpaper (compare GSettings) and pop if necessary!
 
     /**
@@ -136,41 +134,12 @@ const Wallpaper = new Lang.Class({
         }
         let wallpaper = this._image_queue.shift();
         // Set the wallpaper:
-        this._setWallpaper(wallpaper);
+        this._settings.setWallpaper(wallpaper);
         // Callback:
         if (this._preview_callback !== null){
             let next_wallpaper = this._image_queue[0];
             this._preview_callback(next_wallpaper);
         }
-    },
-
-    /**
-     * Set the new Wallpaper (using dconf).
-     * @param path an absolute, linux style path to the image-file for the new Wallpaper.
-     *  For example: "/home/user/image.jpg"
-     * @throws string if there was a problem setting the new wallpaper.
-     * @throws TypeError if the given path was invalid
-     * @returns boolean true on success (otherwise an exception is thrown).
-     * @private
-     */
-    _setWallpaper: function(path){
-        if (path === undefined || path === null)
-            throw TypeError('path should be a valid, absoloute, linux styled path.');
-        // Get the GSettings-object for the background-schema:
-        let background = new gio.Settings({
-            schema: "org.gnome.desktop.background"
-        });
-
-        if (background.is_writable("picture-uri")){
-            // Set a new Background-Image (should show up immediately):
-            if (background.set_string("picture-uri", "file://"+path) ){
-                gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
-                return true;
-            } else {
-                throw "Couldn't set the key!";
-            }
-        } else {
-            throw "The key is not writable";
-        }
     }
+
 });

@@ -4,6 +4,8 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const KEY_DELAY = "delay";
 const KEY_RANDOM = "random";
+const KEY_IMAGE_LIST = "image-list";
+const KEY_WALLPAPER = "picture-uri";
 /**
  * This class takes care of reading/writing the settings from/to the GSettings backend.
  * @type {Lang.Class}
@@ -17,6 +19,7 @@ const Settings = new Lang.Class({
      * @private
      */
     _setting: {},
+    _background_setting: {},
 
     /**
      * Creates a new Settings-object to access the settings of this extension.
@@ -32,6 +35,9 @@ const Settings = new Lang.Class({
 
         this._setting = new Gio.Settings({
             settings_schema: schema
+        });
+        this._background_setting = new Gio.Settings({
+            schema: "org.gnome.desktop.background"
         });
     },
 
@@ -65,7 +71,7 @@ const Settings = new Lang.Class({
      * @returns int the delay in minutes.
      */
     getDelay: function(){
-        return this._setting.get_int("delay");
+        return this._setting.get_int(KEY_DELAY);
     },
 
     /**
@@ -83,7 +89,7 @@ const Settings = new Lang.Class({
             throw RangeError("delay can't be less then 1");
         }
         // Set:
-        let key = "delay";
+        let key = KEY_DELAY;
         if (this._setting.is_writable(key)){
             if (this._setting.set_int(key, delay)){
                 Gio.Settings.sync();
@@ -100,7 +106,7 @@ const Settings = new Lang.Class({
      * @returns boolean true if random, false otherwise.
      */
     isRandom: function(){
-        return this._setting.get_boolean("random");
+        return this._setting.get_boolean(KEY_RANDOM);
     },
 
     /**
@@ -114,7 +120,7 @@ const Settings = new Lang.Class({
             throw TypeError("isRandom should be a boolean variable.");
         }
         // Set:
-        let key = "random";
+        let key = KEY_RANDOM;
         if (this._setting.is_writable(key)){
             if (this._setting.set_boolean(key, isRandom)){
                 Gio.Settings.sync();
@@ -131,7 +137,7 @@ const Settings = new Lang.Class({
      * @returns array list of wallpaper path's.
      */
     getImageList: function(){
-        return this._setting.get_strv("image-list");
+        return this._setting.get_strv(KEY_IMAGE_LIST);
     },
 
     /**
@@ -146,10 +152,47 @@ const Settings = new Lang.Class({
             throw TypeError("'list' should be an array.");
         }
         // Set:
-        let key = "image-list";
+        let key = KEY_IMAGE_LIST;
         if (this._setting.is_writable(key)){
             if (this._setting.set_strv(key, list)){
                 Gio.Settings.sync();
+            } else {
+                throw this._errorSet(key);
+            }
+        } else {
+            throw this._errorWritable(key);
+        }
+    },
+
+    /**
+     * Get the Unix-styled, absolute path to the currently set wallpaper-file.
+     * @return string the Unix-styled, absolute path to the wallpaper-file.
+     */
+    getWallpaper: function(){
+        let full = this._background_setting.get_string(KEY_WALLPAPER);
+        return full.substring("file://".length); // Cut out the "file://"-stuff
+    },
+
+    /**
+     * Set the new Wallpaper.
+     * @param path an absolute, Unix style path to the image-file for the new Wallpaper.
+     *  For example: "/home/user/image.jpg"
+     * @throws string if there was a problem setting the new wallpaper.
+     * @throws TypeError if the given path was invalid
+     * @returns boolean true on success (otherwise an exception is thrown).
+     * @private
+     */
+    setWallpaper: function(path){
+        // Validate
+        if (path === undefined || path === null)
+            throw TypeError('path should be a valid, absoloute, linux styled path.');
+        // Set:
+        let key = KEY_WALLPAPER;
+        if (this._background_setting.is_writable(key)){
+            // Set a new Background-Image (should show up immediately):
+            if (this._background_setting.set_string(key, "file://"+path) ){
+                Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
+                return true;
             } else {
                 throw this._errorSet(key);
             }
