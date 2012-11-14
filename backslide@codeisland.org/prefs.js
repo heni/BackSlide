@@ -222,8 +222,8 @@ function buildPrefsWidget(){
                 let img_path = list_model.get_value(iterator, 2);
                 list.push(img_path);
             } while (list_model.iter_next(iterator));
-            settings.setImageList(list);
         }
+        settings.setImageList(list);
     });
 
     frame.show_all();
