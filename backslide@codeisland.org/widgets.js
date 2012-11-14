@@ -84,6 +84,13 @@ const NextWallpaperWidget = new Lang.Class({
             style_class: "overlay"
         });
         this._box.add(this._wallpaper);
+        // The texture for the wallpapers:
+        this._texture = new Clutter.Texture({
+            filter_quality: Clutter.TextureQuality.HIGH,
+            width: 178,
+            height: 106
+        });
+        this._wallpaper.set_child(this._texture);
 
         // Do the trick for overlapping:
         // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
@@ -99,13 +106,10 @@ const NextWallpaperWidget = new Lang.Class({
      * @param path the path to the image to preview.
      */
     setNextWallpaper: function(path){
-        let texture = new Clutter.Texture({
-            filename: path,
-            filter_quality: Clutter.TextureQuality.HIGH,
-            width: 178,
-            height: 106
-        });
-        this._wallpaper.set_child(texture);
+        if (this._texture.set_from_file(path) === false){
+            // Couldn't load the image!
+            throw "Image at '"+path+"' couldn't be found. It will be removed from the list...";
+        }
     }
 });
 

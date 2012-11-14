@@ -37,7 +37,15 @@ const BackSlideEntry = new Lang.Class({
         this.menu.addMenuItem(new Widget.LabelWidget("Up Next"));
         let next_wallpaper = new Widget.NextWallpaperWidget();
         wallpaper_control.setPreviewCallback(function(path){
-            next_wallpaper.setNextWallpaper(path);
+            try {
+                next_wallpaper.setNextWallpaper(path);
+            } catch (e){
+                /*
+                 The wallpaper could not be loaded (either not existent or not an image). Therefor,
+                 remove particularly it from the image-list.
+                */
+                wallpaper_control.removeInvalidWallpapers(path);
+            }
         });
         this.menu.addMenuItem(next_wallpaper);
         let control = new Widget.WallpaperControlWidget(

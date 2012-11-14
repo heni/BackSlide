@@ -1,6 +1,8 @@
 const Lang = imports.lang;
+const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
+const Notify = Me.imports.notification;
 
 /**
  * This is where the list of wallpapers is maintained and the current
@@ -12,6 +14,7 @@ const Wallpaper = new Lang.Class({
     Name: "Wallpaper",
 
     _settings: {},
+    _notify: {},
     _image_queue: [],
     _is_random: false,
     _preview_callback: null,
@@ -22,6 +25,7 @@ const Wallpaper = new Lang.Class({
      */
     _init: function(){
         this._settings = new Pref.Settings();
+        this._notify = new Notify.Notification();
         // Catch changes happening in the config-tool and update the list
         this._settings.bindKey(Pref.KEY_IMAGE_LIST, Lang.bind(this, function(){
             this._image_queue.length = 0; // Clear the array, see http://stackoverflow.com/a/1234337/717341
@@ -154,9 +158,59 @@ const Wallpaper = new Lang.Class({
         }
         let wallpaper = this._image_queue.shift();
         // Set the wallpaper:
-        this._settings.setWallpaper(wallpaper);
-        // Callback:
-        this._triggerPreviewCallback();
+        if (GLib.file_test(wallpaper, GLib.FileTest.EXISTS)){
+            // The file exists, we're good to go.
+            this._settings.setWallpaper(wallpaper);
+            // Callback:
+            this._triggerPreviewCallback();
+        } else {
+            // File is not found. Check the *whole* list for any non-existing files and remove them.
+            this.removeInvalidWallpapers(); // This will trigger a reload of the whole list.
+        }
+    },
+
+    /**
+     * This function will remove any invalid wallpaper(s) (image not found).
+     * If no 'path' is specified, the whole list is searched for invalid wallpapers
+     *  which will be removed.
+     * @param path [optional] the path to the one invalid wallpaper.
+     */
+    removeInvalidWallpapers: function(path){
+        let list = this._settings.getImageList();
+        let found = [];
+        if (path === undefined || path === null || typeof path !== "string"){
+            // No wallpaper specified, remove all invalid ones:
+            for (let i in list){
+                if (GLib.file_test(list[i], GLib.FileTest.EXISTS) === false){
+                    // File does not exist, remove:
+                    found.push(list[i]);
+                    list.splice(i, 1);
+                }
+            }
+        } else {
+            // We have a specific wallpaper, remove it:
+            for (var i in list){
+                if (list[i] === path){
+                    // remove the item
+                    found.push(list[i]);
+                    list.splice(i, 1);
+                }
+            }
+        }
+        // Check if we have changes:
+        if (found.length !== 0){
+            this._settings.setImageList(list);
+            // Show Notification.
+            let body = "";
+            for (let i in found){
+                body += "* "+found[i]+"\n";
+            }
+            this._notify.notify(
+                "BackSlide Wallpaper Error",
+                "The following images where invalid (not found or not image-types) and have been removed:",
+                body
+            );
+        }
     }
 
 });

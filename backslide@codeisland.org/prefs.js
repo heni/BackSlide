@@ -29,7 +29,10 @@ function addListEntry(model, path, number){
         image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 200, 100, true);
     } catch (e){
         // Image could not be loaded. Invalid path.
-        // TODO Proper error handling here. Maybe invalid-picture with X?
+        /*
+            It's okay to do nothing here, when the list is stored, the invalid image will not be
+            stored with the rest, so it's practically gone.
+        */
     }
     if (image === undefined) return;
     // Append to the list:
@@ -203,7 +206,8 @@ function buildPrefsWidget(){
     list_selection.connect('changed', button_state_callback);
     list_model.connect('row-changed', button_state_callback);
 
-    // Store the changes in the settings:
+    // Store the changes in the settings, when the window is closed or the settings change:
+    // Workaround, see https://bugzilla.gnome.org/show_bug.cgi?id=687510
     frame.connect('screen_changed', function(widget){
         if (!visible){
             visible = true; // Set this to prevent storing the list on initialisation of the widget.
@@ -218,8 +222,8 @@ function buildPrefsWidget(){
                 let img_path = list_model.get_value(iterator, 2);
                 list.push(img_path);
             } while (list_model.iter_next(iterator));
+            settings.setImageList(list);
         }
-        settings.setImageList(list);
     });
 
     frame.show_all();
