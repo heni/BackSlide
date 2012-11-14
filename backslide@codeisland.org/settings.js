@@ -184,8 +184,9 @@ const Settings = new Lang.Class({
      */
     setWallpaper: function(path){
         // Validate
-        if (path === undefined || path === null)
+        if (path === undefined || path === null || typeof path !== "string"){
             throw TypeError('path should be a valid, absoloute, linux styled path.');
+        }
         // Set:
         let key = KEY_WALLPAPER;
         if (this._background_setting.is_writable(key)){
