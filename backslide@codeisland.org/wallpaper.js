@@ -66,11 +66,15 @@ const Wallpaper = new Lang.Class({
      */
     _loadQueue: function(){
         let list = this._settings.getImageList();
+        // Add current if empty:
+        if (list.length === 0){
+            list.push( this._settings.getWallpaper() );
+        }
         // Check if shuffle:
         if (this._is_random === true){
             this._fisherYates(list);
             // Check if last element in queue is same as first in list:
-            if (this._image_queue[this._image_queue.length-1] === list[0]){
+            if (this._image_queue.length > 1 && this._image_queue[this._image_queue.length-1] === list[0]){
                 // Move duplicate to the end of the new list:
                 let duplicate = list.shift();
                 list.push(duplicate);
@@ -88,6 +92,11 @@ const Wallpaper = new Lang.Class({
      * @private
      */
     _removeDuplicate: function(){
+        // Check if it's only one image in the list:
+        if (this._image_queue.length <= 1){
+            return;
+        }
+        // Otherwise, remove is necessary:
         if (this._settings.getWallpaper() === this._image_queue[0]){
             this._image_queue.shift();
         }
