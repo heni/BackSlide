@@ -14,7 +14,6 @@ const Notification = new Lang.Class({
 
     _init: function(){
         this._source = new SimpleSource("BackSlide", "dialog-error");
-        Main.messageTray.add(this._source);
     },
 
     /**
@@ -24,12 +23,14 @@ const Notification = new Lang.Class({
      * @param body the body-text (larger).
      */
     notify: function(title, banner_text, body){
+        Main.messageTray.add(this._source);
         let notification = new MessageTray.Notification(this._source, title, banner_text,
             {
                 body: body,
                 bodyMarkup: true
             }
         );
+        notification.setTransient(true);
         this._source.notify(notification);
     }
 });
@@ -51,6 +52,7 @@ const SimpleSource = new Lang.Class({
     _init: function(title, icon_name){
         this.parent(title, icon_name);
         this._icon_name = icon_name;
+        this.setTransient(true);
     },
 
     createNotificationIcon: function() {
@@ -60,5 +62,9 @@ const SimpleSource = new Lang.Class({
             icon_size: 48
         });
         return iconBox;
+    },
+
+    open: function() {
+        this.destroy();
     }
 });
