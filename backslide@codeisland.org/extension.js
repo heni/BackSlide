@@ -48,9 +48,8 @@ const BackSlideEntry = new Lang.Class({
             }
         });
         this.menu.addMenuItem(next_wallpaper);
-        let control = new Widget.WallpaperControlWidget(
-            settings.isRandom()
-        );
+        let control = new Widget.WallpaperControlWidget();
+        control.setOrderState(settings.isRandom());
         this.menu.addMenuItem(control);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         let delay_slider_label = new Widget.LabelWidget("Delay ("+settings.getDelay()+" Minutes)");
@@ -89,6 +88,16 @@ const BackSlideEntry = new Lang.Class({
         delay_slider.connect('value-changed', function(){
             settings.setDelay(delay_slider.getMinutes());
             delay_slider_label.setText("Delay ("+delay_slider.getMinutes()+" Minutes)")
+        });
+
+        // Widgets react on changes of settings:
+        settings.bindKey(Pref.KEY_RANDOM, function(value){
+            control.setOrderState( value.get_boolean() );
+        });
+        settings.bindKey(Pref.KEY_DELAY, function(value){
+            let minutes = value.get_int32();
+            delay_slider.setMinutes(minutes);
+            delay_slider_label.setText("Delay ("+minutes+" Minutes)");
         });
     }
 });

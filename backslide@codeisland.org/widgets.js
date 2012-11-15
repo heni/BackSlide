@@ -133,12 +133,13 @@ const WallpaperControlWidget = new Lang.Class({
     Name: "WallpaperControlWidget",
     Extends: PopupMenu.PopupBaseMenuItem,
 
+    _order_button: {},
+
     /**
      * Creates a new control-widget.
-     * @param isRandom whether the wallpaper-order is random or not.
      * @private
      */
-    _init: function(isRandom){
+    _init: function(){
         this.parent({
             reactive: false
         });
@@ -151,7 +152,7 @@ const WallpaperControlWidget = new Lang.Class({
             align: St.Align.MIDDLE // See http://git.gnome.org/browse/gnome-shell/tree/js/ui/popupMenu.js#n150
         });
         // Add the buttons:
-        let order_button = new StateControlButton(
+        this._order_button = new StateControlButton(
             [
                 {
                     name: LOOP_STATE,
@@ -162,8 +163,7 @@ const WallpaperControlWidget = new Lang.Class({
                 }
             ], Lang.bind(this, this._orderStateChanged)
         );
-        order_button.setState((isRandom === true) ? RANDOM_STATE : LOOP_STATE);
-        this.box.add_actor(order_button);
+        this.box.add_actor(this._order_button);
         let timer_button = new StateControlButton(
             [
                 {
@@ -178,6 +178,14 @@ const WallpaperControlWidget = new Lang.Class({
         timer_button.setState(STOP_TIMER_STATE);
         this.box.add_actor(timer_button);
         this.box.add_actor(new ControlButton("media-skip-forward", Lang.bind(this, this._nextWallpaper)) );
+    },
+
+    /**
+     * Set the state of the order-button.
+     * @param isRandom whether the wallpaper-order is random or not.
+     */
+    setOrderState: function(isRandom){
+        this._order_button.setState((isRandom === true) ? LOOP_STATE: RANDOM_STATE);
     },
 
     /**
@@ -262,6 +270,7 @@ const StateControlButton = new Lang.Class({
     _state_index: 0,
     _states: [],
     _callback: null,
+    _locked: false,
 
     /**
      * <p>Create a new, stateful button for use inside "WallpaperControlWidget"</p>
@@ -283,7 +292,7 @@ const StateControlButton = new Lang.Class({
         if (states.length < 2){
             throw RangeError("The 'states'-array should contain 2 or more elements.");
         }
-        for (var i in states){
+        for (let i in states){
             if (states[i].icon === undefined || states[i].name === undefined){
                 throw TypeError("objects in the 'states'-array need an 'icon' and 'name'-property!");
             }
@@ -307,7 +316,9 @@ const StateControlButton = new Lang.Class({
     _clicked: function(){
         // Call-Back:
         if (this._callback !== null){
+            this._locked = true;
             this._callback( this._states[this._state_index] );
+            this._locked = false;
         }
         // Set new state:
         if (this._state_index+1 >= this._states.length){
@@ -324,7 +335,13 @@ const StateControlButton = new Lang.Class({
      * @param state the state-name of the button.
      */
     setState: function(state){
-        for (var i in this._states){
+        if (state === this._states[this._state_index]){
+            return; // It's already this state.
+        }
+        if (this._locked){
+            return; // Locked to prevent concurrent changes.
+        }
+        for (let i in this._states){
             if (this._states[i].name === state){
                 this._state_index = i;
                 this.setIcon(this._states[i].icon);
