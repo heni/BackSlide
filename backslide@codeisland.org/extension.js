@@ -90,15 +90,7 @@ const BackSlideEntry = new Lang.Class({
             delay_slider_label.setText("Delay ("+delay_slider.getMinutes()+" Minutes)")
         });
 
-        // Widgets react on changes of settings:
-        settings.bindKey(Pref.KEY_RANDOM, function(value){
-            control.setOrderState( value.get_boolean() );
-        });
-        settings.bindKey(Pref.KEY_DELAY, function(value){
-            let minutes = value.get_int32();
-            delay_slider.setMinutes(minutes);
-            delay_slider_label.setText("Delay ("+minutes+" Minutes)");
-        });
+        // TODO Widgets react on external changes of settings
     }
 });
 
