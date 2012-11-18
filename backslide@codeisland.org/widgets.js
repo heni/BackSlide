@@ -6,7 +6,7 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
-const GLib = imports.gi.GLib;
+const Shell = imports.gi.Shell;
 
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
@@ -37,10 +37,22 @@ const OpenPrefsWidget = new Lang.Class({
     },
 
     _onClick: function(){
-        // TODO Dirty solution. Use DBus?
-        if (GLib.spawn_command_line_async("gnome-shell-extension-prefs backslide@codeisland.org")){
-            this._menu.toggle(); // Toggle the menu.
-        }
+        this.launchExtensionPrefs("backslide@codeisland.org");
+        this._menu.toggle(); // Toggle the menu.
+    },
+
+    /**
+     * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
+     *  with the given uuid.</p>
+     * <p>This function is copied over from "js/ui/shellDBus.js".</p>
+     * @param uuid the uuid of the extension.
+     * @see js/ui/shellDBus.js
+     */
+    launchExtensionPrefs: function(uuid) {
+        let appSys = Shell.AppSystem.get_default();
+        let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        app.launch(global.display.get_current_time_roundtrip(),
+            ['extension:///' + uuid], -1, null);
     }
 });
 
