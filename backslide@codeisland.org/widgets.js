@@ -70,9 +70,12 @@ const NextWallpaperWidget = new Lang.Class({
         // The computer-picture:
         this._icon = new St.Icon({
             icon_name: "video-display",
-            icon_type: St.IconType.FULLCOLOR, // Load it with full-color, not as symbol
             icon_size: 220
         });
+        if (St.IconType !== undefined){
+            this._icon.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
+        }
+
         this._icon_bin = new St.Bin({
             child: this._icon,
             y_fill: false,  // The icon has much space on top/bottom,
@@ -265,7 +268,7 @@ const ControlButton = new Lang.Class({
  */
 const StateControlButton = new Lang.Class({
     Name: "StateControlButton",
-    Extends: ControlButton,
+    Extends: St.Button,
 
     _state_index: 0,
     _states: [],
@@ -300,7 +303,18 @@ const StateControlButton = new Lang.Class({
         // Initialize:
         this._states = states;
         this._state_index = 0;
-        this.parent(this._states[this._state_index].icon, null);
+
+        this.icon = new St.Icon({
+            icon_name: this._states[this._state_index].icon + "-symbolic", // Get the symbol-icons.
+            icon_size: 20
+        });
+
+        this.parent({
+            style_class: 'notification-icon-button control-button', // buttons styled like in Rhythmbox-notifications
+            child: this.icon
+        });
+        this.icon.set_style('padding: 0px');
+        this.set_style('padding: 8px'); // Put less space between buttons
 
         if (callback !== undefined || callback !== null){
             this._callback = callback;
@@ -347,6 +361,14 @@ const StateControlButton = new Lang.Class({
                 this.setIcon(this._states[i].icon);
             }
         }
+    },
+
+    /**
+     * Set this buttons icon to the given icon-name.
+     * @param icon the icon-name.
+     */
+    setIcon: function(icon){
+        this.icon.icon_name = icon+'-symbolic';
     }
 
 });

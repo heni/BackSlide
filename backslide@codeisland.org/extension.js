@@ -26,7 +26,7 @@ const BackSlideEntry = new Lang.Class({
         this.actor.show();
         this._iconBox = new St.BoxLayout();
         this._iconIndicator = new St.Icon({
-            icon_name: 'emblem-photos',
+            icon_name: 'emblem-photos-symbolic',
             style_class: 'system-status-icon'
         });
         this._iconBox.add(this._iconIndicator);

@@ -58,9 +58,11 @@ const SimpleSource = new Lang.Class({
     createNotificationIcon: function() {
         let iconBox = new St.Icon({
             icon_name: this._icon_name,
-            icon_type: St.IconType.FULLCOLOR,
             icon_size: 48
         });
+        if (St.IconType !== undefined){
+            iconBox.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
+        }
         return iconBox;
     },
 

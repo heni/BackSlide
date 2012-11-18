@@ -1,8 +1,8 @@
 {
-    "shell-version": ["3.4.2"],
+    "shell-version": ["3.4","3.6"],
     "uuid": "backslide@codeisland.org",
     "name": "BackSlide",
-    "description": "Automatic background-slideshow for Gnome Shell",
+    "description": "Automatic background-image (wallpaper) slideshow for Gnome Shell",
     "original-author": "Lukas Knuth",
     "url": "http://codeisland.org"
 }
