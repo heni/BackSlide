@@ -29,7 +29,7 @@ If you need to "install" the extension manually, you'll need the following utili
 The packages which include the above tools may vary across different Linux distributions. Check your distributions wiki/package list to find the most suitable package for you. Afterwards, simply follow these steps:
 
     # Clone the repository (you might already did this!)
-    git clone http... BackSlide
+    git clone https://LukasKnuth@bitbucket.org/LukasKnuth/backslide.git BackSlide
     cd BackSlide
     # "Compile" the settings-schema:
     glib-compile-schemas backslide\@codeisland.org/schemas/
