@@ -16,7 +16,7 @@ The preferences page to manage the image list.
 
 ### Installation
 
-The extension should be installed from [the official extension repository](http://extensions.gnome.org). It can be found here:
+The extension should be installed from the official extension repository. It can be found here: [![Install](http://media.cdn.ubuntu-de.org/wiki/attachments/56/32/Kippschalter-ON.png)](https://extensions.gnome.org/extension/543/backslide/)
 
 #### Manual installation
 
