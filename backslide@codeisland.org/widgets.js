@@ -7,13 +7,15 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
 const Shell = imports.gi.Shell;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Helper = Me.imports.helper;
 
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  * @type {Lang.Class}
  */
 const OpenPrefsWidget = new Lang.Class({
-    Name: "OpenPrefsWidget",
+    Name: Helper.prefixClassName("OpenPrefsWidget"),
     Extends: PopupMenu.PopupBaseMenuItem,
 
     /**
@@ -63,7 +65,7 @@ const OpenPrefsWidget = new Lang.Class({
  * @type {Lang.Class}
  */
 const NextWallpaperWidget = new Lang.Class({
-    Name: "NextWallpaperWidget",
+    Name: Helper.prefixClassName("NextWallpaperWidget"),
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(){
@@ -145,7 +147,7 @@ const RANDOM_STATE = "random";
  * @type {Lang.Class}
  */
 const WallpaperControlWidget = new Lang.Class({
-    Name: "WallpaperControlWidget",
+    Name: Helper.prefixClassName("WallpaperControlWidget"),
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _order_button: {},
@@ -236,7 +238,7 @@ const WallpaperControlWidget = new Lang.Class({
  * @type {Lang.Class}
  */
 const ControlButton = new Lang.Class({
-    Name: 'ControlButton',
+    Name: Helper.prefixClassName('ControlButton'),
     Extends: St.Button,
 
     /**
@@ -279,7 +281,7 @@ const ControlButton = new Lang.Class({
  * @type {Lang.Class}
  */
 const StateControlButton = new Lang.Class({
-    Name: "StateControlButton",
+    Name: Helper.prefixClassName("StateControlButton"),
     Extends: St.Button,
 
     _state_index: 0,
@@ -392,7 +394,7 @@ const StateControlButton = new Lang.Class({
  * @type {Lang.Class}
  */
 const DelaySlider = new Lang.Class({
-    Name: 'DelaySlider',
+    Name: Helper.prefixClassName('DelaySlider'),
     Extends: PopupMenu.PopupSliderMenuItem,
 
     _MINUTES_MAX: 60,
@@ -440,7 +442,7 @@ const DelaySlider = new Lang.Class({
  * @type {Lang.Class}
  */
 const LabelWidget = new Lang.Class({
-    Name: "LabelWidget",
+    Name: Helper.prefixClassName("LabelWidget"),
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(text){

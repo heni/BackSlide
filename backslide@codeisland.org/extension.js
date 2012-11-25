@@ -10,13 +10,14 @@ const Widget = Me.imports.widgets;
 const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
 const Time = Me.imports.timer;
+const Helper = Me.imports.helper;
 
 /**
  * The new entry in the gnome3 status-area.
  * @type {Lang.Class}
  */
 const BackSlideEntry = new Lang.Class({
-    Name: 'BackSlideEntry',
+    Name: Helper.prefixClassName('BackSlideEntry'),
     Extends: PanelMenu.Button,
 
     _init: function(){
