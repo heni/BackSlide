@@ -420,7 +420,7 @@ const DelaySlider = new Lang.Class({
                 +this._MINUTES_MIN+" and "+this._MINUTES_MAX+"");
         }
         // calculate and set value:
-        let value = minutes / (this._MINUTES_MAX - this._MINUTES_MIN); // Value is set in percent, e.g 0.5 = 50%
+        let value = (minutes - this._MINUTES_MIN) / (this._MINUTES_MAX - this._MINUTES_MIN); // Value is set in percent, e.g 0.5 = 50%
         this.setValue(value.toFixed(2));
     },
 
@@ -430,7 +430,7 @@ const DelaySlider = new Lang.Class({
      */
     getMinutes: function(){
         // Get and calculate:
-        let minutes = Math.floor(this._value * (this._MINUTES_MAX - this._MINUTES_MIN));
+        let minutes = this._MINUTES_MIN + Math.floor(this._value * (this._MINUTES_MAX - this._MINUTES_MIN));
         return (minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : minutes;
     }
 });
