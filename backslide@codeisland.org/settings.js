@@ -6,6 +6,7 @@ const KEY_DELAY = "delay";
 const KEY_RANDOM = "random";
 const KEY_IMAGE_LIST = "image-list";
 const KEY_WALLPAPER = "picture-uri";
+const KEY_ELAPSED_TIME = "elapsed-time";
 /**
  * This class takes care of reading/writing the settings from/to the GSettings backend.
  * @type {Lang.Class}
@@ -55,10 +56,10 @@ const Settings = new Lang.Class({
     bindKey: function(key, callback){
         // Validate:
         if (key === undefined || key === null || typeof key !== "string"){
-            throw TypeError("The 'key' should be a string.");
+            throw TypeError("The 'key' should be a string. Got: '"+key+"'");
         }
         if (callback === undefined || callback === null || typeof callback !== "function"){
-            throw TypeError("'callback' needs to be a function.");
+            throw TypeError("'callback' needs to be a function. Got: "+callback);
         }
         // Bind:
         this._setting.connect("changed::"+key, function(source, key){
@@ -77,16 +78,12 @@ const Settings = new Lang.Class({
     /**
      * Set the new delay in minutes.
      * @param delay the new delay (in minutes).
-     * @throws TypeError if the given delay is not a number
-     * @throws RangeError if the given delay is less than 1
+     * @throws TypeError if the given delay is not a number or less than 1
      */
     setDelay: function(delay){
         // Validate:
-        if (delay === undefined || delay === null || typeof delay !== "number"){
-            throw TypeError("delay should be a number.");
-        }
-        if (delay <= 1){
-            throw RangeError("delay can't be less then 1");
+        if (delay === undefined || delay === null || typeof delay !== "number" || delay <= 1){
+            throw TypeError("delay should be a number, greater than 1. Got: "+delay);
         }
         // Set:
         let key = KEY_DELAY;
@@ -117,7 +114,7 @@ const Settings = new Lang.Class({
     setRandom: function(isRandom){
         // validate:
         if (isRandom === undefined || isRandom === null || typeof isRandom !== "boolean"){
-            throw TypeError("isRandom should be a boolean variable.");
+            throw TypeError("isRandom should be a boolean variable. Got: "+isRandom);
         }
         // Set:
         let key = KEY_RANDOM;
@@ -149,7 +146,7 @@ const Settings = new Lang.Class({
         // Validate:
         let what = Object.prototype.toString; // See http://stackoverflow.com/questions/4775722
         if (list === undefined || list === null || what.call(list) !== "[object Array]"){
-            throw TypeError("'list' should be an array.");
+            throw TypeError("'list' should be an array. Got: "+list);
         }
         // Set:
         let key = KEY_IMAGE_LIST;
@@ -179,13 +176,11 @@ const Settings = new Lang.Class({
      *  For example: "/home/user/image.jpg"
      * @throws string if there was a problem setting the new wallpaper.
      * @throws TypeError if the given path was invalid
-     * @returns boolean true on success (otherwise an exception is thrown).
-     * @private
      */
     setWallpaper: function(path){
         // Validate
         if (path === undefined || path === null || typeof path !== "string"){
-            throw TypeError('path should be a valid, absoloute, linux styled path.');
+            throw TypeError("path should be a valid, absolute, linux styled path. Got: '"+path+"'");
         }
         // Set:
         let key = KEY_WALLPAPER;
@@ -193,7 +188,36 @@ const Settings = new Lang.Class({
             // Set a new Background-Image (should show up immediately):
             if (this._background_setting.set_string(key, "file://"+path) ){
                 Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
-                return true;
+            } else {
+                throw this._errorSet(key);
+            }
+        } else {
+            throw this._errorWritable(key);
+        }
+    },
+
+    /**
+     * Get the time (in minutes), which has already elapsed from the last set timeout-interval.
+     * @return int the elapsed time in minutes.
+     */
+    getElapsedTime: function(){
+        return this._setting.get_int(KEY_ELAPSED_TIME);
+    },
+
+    /**
+     * Set the time (in minutes) which has elapsed from the last set timeout-interval.
+     * @param time the time (in minutes) that has elapsed.
+     * @throws TypeError if 'time' wasn't a number or less than 0.
+     */
+    setElapsedTime: function(time){
+        // Validate:
+        if (time === undefined || time === null || typeof time != "number" || time < 0){
+            throw TypeError("'time' needs to be a number, greater than 0. Given: "+time);
+        }
+        // Write:
+        if (this._setting.is_writable(KEY_ELAPSED_TIME)){
+            if (this._setting.set_int(KEY_ELAPSED_TIME, time)){
+                Gio.Settings.sync();
             } else {
                 throw this._errorSet(key);
             }

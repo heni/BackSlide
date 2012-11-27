@@ -34,6 +34,9 @@ const Timer = new Lang.Class({
     _interval_id: null,
     _callback: null,
 
+    _start_timestamp: {},
+    _elapsed_minutes: 0,
+
     /**
      * Create a new timer (doesn't start it). To be usefull, you also need to specify a
      *  callback-function.
@@ -43,6 +46,7 @@ const Timer = new Lang.Class({
     _init: function(){
         this._settings = new Pref.Settings();
         this._delay = this._settings.getDelay();
+        this._elapsed_minutes = this._settings.getElapsedTime();
         // Listen to changes and restart with new delay.
         this._settings.bindKey(Pref.KEY_DELAY, Lang.bind(this, function(value){
             this._delay = value.get_int32();
@@ -70,8 +74,9 @@ const Timer = new Lang.Class({
      */
     begin: function(){
         this.stop();
+        this._start_timestamp = new Date();
         this._interval_id = GLib.timeout_add(
-            GLib.PRIORITY_DEFAULT, this._delay*60000, Lang.bind(this, this._callbackInternal)
+            GLib.PRIORITY_DEFAULT, (this._delay-this._elapsed_minutes)*60000, Lang.bind(this, this._callbackInternal)
         );
     },
 
@@ -82,6 +87,10 @@ const Timer = new Lang.Class({
         if (this._interval_id !== null){
             if (GLib.source_remove(this._interval_id) ){
                 this._interval_id = null;
+                // Calculate elapsed time:
+                let diff = Math.abs(new Date() - this._start_timestamp);
+                this._elapsed_minutes = Math.floor((diff / 1000) / 60);
+                this._settings.setElapsedTime(this._elapsed_minutes);
             }
         }
     },
@@ -91,6 +100,7 @@ const Timer = new Lang.Class({
      */
     restart: function(){
         this.stop();
+        this._elapsed_minutes = 0; // Reset the elapsed minutes.
         this.begin();
     },
 
