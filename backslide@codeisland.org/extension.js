@@ -53,7 +53,11 @@ const BackSlideEntry = new Lang.Class({
         control.setOrderState(settings.isRandom());
         this.menu.addMenuItem(control);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        let delay_slider_label = new Widget.LabelWidget("Delay ("+settings.getDelay()+" Minutes)");
+        let delay_slider_label = new Widget.LabelWidget("Delay ("+
+            ((settings.getDelay() > 60)
+                ? Math.floor(settings.getDelay() / 60)+" Hours)"
+                : settings.getDelay()+" Minutes)")
+        );
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.menu.addMenuItem(delay_slider);
@@ -88,7 +92,12 @@ const BackSlideEntry = new Lang.Class({
         // React on delay-change:
         delay_slider.connect('value-changed', function(){
             settings.setDelay(delay_slider.getMinutes());
-            delay_slider_label.setText("Delay ("+delay_slider.getMinutes()+" Minutes)")
+            let minutes = delay_slider.getMinutes();
+            if (minutes > 60){
+                delay_slider_label.setText("Delay (" +Math.floor(minutes / 60)+" Hours)");
+            } else {
+                delay_slider_label.setText("Delay ("+minutes+" Minutes)");
+            }
         });
 
         // TODO Widgets react on external changes of settings
