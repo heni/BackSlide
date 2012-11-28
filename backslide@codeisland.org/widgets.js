@@ -68,6 +68,8 @@ const NextWallpaperWidget = new Lang.Class({
     Name: Helper.prefixClassName("NextWallpaperWidget"),
     Extends: PopupMenu.PopupBaseMenuItem,
 
+    _overlay_idle_id: 0,
+
     _init: function(){
         this.parent({
             reactive: false
@@ -112,9 +114,10 @@ const NextWallpaperWidget = new Lang.Class({
         // Do the trick for overlapping:
         // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
         let box = this._wallpaper;
-        Mainloop.idle_add(function () {
+        this._overlay_idle_id = Mainloop.idle_add(function () {
             box.y = 0;
             box.anchor_y = box.height/2;
+            return false;
         });
     },
 
@@ -127,6 +130,15 @@ const NextWallpaperWidget = new Lang.Class({
             // Couldn't load the image!
             throw "Image at '"+path+"' couldn't be found. It will be removed from the list...";
         }
+    },
+
+    destroy: function() {
+        Mainloop.source_remove(this._overlay_idle_id);
+        this._wallpaper.destroy();
+        this._wallpaper = null;
+
+        // Call the base-implementation:
+        PopupMenu.PopupBaseMenuItem.prototype.destroy.call(this);
     }
 });
 
