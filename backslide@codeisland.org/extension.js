@@ -80,13 +80,13 @@ const BackSlideEntry = new Lang.Class({
             }
         });
         control.connect("order-state-changed", Lang.bind(this, function(source, state){
-            if (state.name === Widget.RANDOM_STATE){
+            if (state === true){
                 wallpaper_control.shuffle();
-            } else if (state.name === Widget.LOOP_STATE){
+            } else {
                 wallpaper_control.order();
             }
             // Also write the new setting:
-            settings.setRandom((state.name === Widget.RANDOM_STATE));
+            settings.setRandom(state);
         }));
 
         // React on delay-change:

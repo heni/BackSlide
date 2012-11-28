@@ -134,8 +134,6 @@ const NextWallpaperWidget = new Lang.Class({
 
 const STOP_TIMER_STATE = "stop";
 const START_TIMER_STATE = "start";
-const LOOP_STATE = "loop";
-const RANDOM_STATE = "random";
 /**
  * The whole widget including the loop/random, pause/play and next buttons.
  * This widget will emit multiple signals to be handled in a central place:
@@ -169,16 +167,8 @@ const WallpaperControlWidget = new Lang.Class({
             align: St.Align.MIDDLE // See http://git.gnome.org/browse/gnome-shell/tree/js/ui/popupMenu.js#n150
         });
         // Add the buttons:
-        this._order_button = new StateControlButton(
-            [
-                {
-                    name: LOOP_STATE,
-                    icon: "media-playlist-repeat"
-                },{
-                    name: RANDOM_STATE,
-                    icon: "media-playlist-shuffle"
-                }
-            ], Lang.bind(this, this._orderStateChanged)
+        this._order_button = new ControlToggleButton(
+            "media-playlist-shuffle", Lang.bind(this, this._orderStateChanged)
         );
         this.box.add_actor(this._order_button);
         let timer_button = new StateControlButton(
@@ -202,7 +192,7 @@ const WallpaperControlWidget = new Lang.Class({
      * @param isRandom whether the wallpaper-order is random or not.
      */
     setOrderState: function(isRandom){
-        this._order_button.setState((isRandom === true) ? LOOP_STATE: RANDOM_STATE);
+        this._order_button.setState(isRandom);
     },
 
     /**
@@ -385,6 +375,70 @@ const StateControlButton = new Lang.Class({
         this.icon.icon_name = icon+'-symbolic';
     }
 
+});
+
+/**
+ * A "ControlButton" which can be active or inactive. To be used in "WallpaperControlWidget".
+ * @type {Lang.Class}
+ */
+const ControlToggleButton = new Lang.Class({
+    Name: Helper.prefixClassName('ControlToggleButton'),
+    Extends: St.Button,
+
+    _callback: {},
+
+    /**
+     * Create a new toggle button.
+     * @param icon the icon to use for the button
+     * @param callback the click-callback for the button. The functions first parameter will be
+     *  the new state of the button.
+     * @private
+     */
+    _init: function(icon, callback){
+        this.icon = new St.Icon({
+            icon_name: icon + "-symbolic", // Get the symbol-icons.
+            icon_size: 20
+        });
+
+        this.parent({
+            toggle_mode: true,
+            style_class: 'notification-icon-button', // buttons styled like in Rhythmbox-notifications
+            child: this.icon
+        });
+        this.icon.set_style('padding: 0px');
+        this.set_style('padding: 8px'); // Put less space between buttons
+
+        if (callback != undefined || callback != null){
+            this._callback = callback;
+        }
+        this.connect('clicked', Lang.bind(this, this._onToggle));
+    },
+
+    _onToggle: function(){
+        // Glow the image:
+        if (this.checked){
+            this.style_class = 'notification-icon-button toggled';
+        } else {
+            this.style_class = 'notification-icon-button';
+        }
+        // Trigger callback:
+        if (this._callback !== null){
+            this._callback(this.checked);
+        }
+    },
+
+    /**
+     * Set the state of the button (without triggering the callback).
+     * @param on whether the button is toggled on or not.
+     */
+    setState: function(on){
+        if (typeof on === "boolean"){
+            this.checked = on;
+            if (on){
+                this.style_class = 'notification-icon-button toggled';
+            }
+        }
+    }
 });
 
 // -------------------------------------------------------------------------------
