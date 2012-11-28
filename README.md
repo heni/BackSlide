@@ -36,7 +36,7 @@ The packages which include the above tools may vary across different Linux distr
     # Copy the files over to the local extension directory:
     cp -r backslide\@codeisland.org/ ~/.local/share/gnome-shell/extensions/
 
-Afterwards, you can activate the extension either by using the `gnome-tweak-tool` or by goint to [extensions.gnome.org/local](https://extensions.gnome.org/local/) and activate it there.
+Afterwards, you can activate the extension either by using the `gnome-tweak-tool` or at [extensions.gnome.org/local](https://extensions.gnome.org/local/)
 
 ### Settings
 
@@ -53,5 +53,9 @@ All settings can be changed from the `gnome-shell-extension-prefs`-tool or from 
 * **The List of wallpapers as a string-array of absolute, unix-styled path's:** (*default*: `[]`)
 
 `dconf write /org/gnome/shell/extensions/backslide/image-list "['/path/to/picture.png', '/another/pic.png']"`
+
+* **The already elapsed time (in minutes) from the last interval** (*default*: `0`)
+
+`dconf write /org/gnome/shell/extensions/backslide/elapsed-time 0`
 
 Settings changed, using the `dconf`-tool will **apply, after the extension is restarted**.
