@@ -75,6 +75,13 @@ const Timer = new Lang.Class({
     begin: function(){
         this.stop();
         this._start_timestamp = new Date();
+        if (this._elapsed_minutes >= this._delay){
+            /*
+                Just defensive programming, the value could be manipulated
+                See issue #12
+            */
+            this._elapsed_minutes = 0;
+        }
         this._interval_id = GLib.timeout_add(
             GLib.PRIORITY_DEFAULT, (this._delay-this._elapsed_minutes)*60000, Lang.bind(this, this._callbackInternal)
         );
@@ -88,8 +95,9 @@ const Timer = new Lang.Class({
             if (GLib.source_remove(this._interval_id) ){
                 this._interval_id = null;
                 // Calculate elapsed time:
+                let already = this._elapsed_minutes;
                 let diff = Math.abs(new Date() - this._start_timestamp);
-                this._elapsed_minutes = Math.floor((diff / 1000) / 60);
+                this._elapsed_minutes = Math.floor((diff / 1000) / 60) + already;
                 this._settings.setElapsedTime(this._elapsed_minutes);
             }
         }
@@ -99,8 +107,9 @@ const Timer = new Lang.Class({
      * A convenient way to restart the timer.
      */
     restart: function(){
-        this.stop();
+        this._start_timestamp = new Date();
         this._elapsed_minutes = 0; // Reset the elapsed minutes.
+        this.stop();
         this.begin();
     },
 
@@ -110,6 +119,16 @@ const Timer = new Lang.Class({
      */
     _callbackInternal: function(){
         this._callback();
-        return true; // Keep on looping.
+        this._start_timestamp = new Date(); // Reset the time-stamp, see issue12
+        if (this._elapsed_minutes > 0){
+            // The interval was started with a shortened delay. Restart it with the actual delay:
+            this._elapsed_minutes = 0;
+            this.begin();
+            return false; // Don't restart the (shortened) interval.
+        } else {
+            // Was started with the un-shortened delay, continue looping.
+            this._elapsed_minutes = 0;
+            return true; // Keep on looping.
+        }
     }
 });
