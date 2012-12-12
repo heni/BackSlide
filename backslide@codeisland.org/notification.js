@@ -2,8 +2,6 @@ const Lang = imports.lang;
 const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
 const Main = imports.ui.main;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Helper = Me.imports.helper;
 
 /**
  * A simple to use class for showing notifications.
@@ -42,7 +40,7 @@ const Notification = new Lang.Class({
  * @type {Lang.Class}
  */
 const SimpleSource = new Lang.Class({
-    Name: Helper.prefixClassName("SimpleSource"),
+    Name: "SimpleSource",
     Extends: MessageTray.Source,
 
     /**

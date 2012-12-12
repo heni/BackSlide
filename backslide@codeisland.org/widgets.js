@@ -8,14 +8,13 @@ const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
 const Shell = imports.gi.Shell;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Helper = Me.imports.helper;
 
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  * @type {Lang.Class}
  */
 const OpenPrefsWidget = new Lang.Class({
-    Name: Helper.prefixClassName("OpenPrefsWidget"),
+    Name: "OpenPrefsWidget",
     Extends: PopupMenu.PopupBaseMenuItem,
 
     /**
@@ -65,7 +64,7 @@ const OpenPrefsWidget = new Lang.Class({
  * @type {Lang.Class}
  */
 const NextWallpaperWidget = new Lang.Class({
-    Name: Helper.prefixClassName("NextWallpaperWidget"),
+    Name: "NextWallpaperWidget",
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _overlay_idle_id: 0,
@@ -157,7 +156,7 @@ const START_TIMER_STATE = "start";
  * @type {Lang.Class}
  */
 const WallpaperControlWidget = new Lang.Class({
-    Name: Helper.prefixClassName("WallpaperControlWidget"),
+    Name: "WallpaperControlWidget",
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _order_button: {},
@@ -182,7 +181,7 @@ const WallpaperControlWidget = new Lang.Class({
         this._order_button = new ControlToggleButton(
             "media-playlist-shuffle", Lang.bind(this, this._orderStateChanged)
         );
-        this.box.add_actor(this._order_button);
+        this.box.add_actor(this._order_button.actor);
         let timer_button = new StateControlButton(
             [
                 {
@@ -195,8 +194,8 @@ const WallpaperControlWidget = new Lang.Class({
             ], Lang.bind(this, this._timerStateChanged)
         );
         timer_button.setState(STOP_TIMER_STATE);
-        this.box.add_actor(timer_button);
-        this.box.add_actor(new ControlButton("media-skip-forward", Lang.bind(this, this._nextWallpaper)) );
+        this.box.add_actor(timer_button.actor);
+        this.box.add_actor(new ControlButton("media-skip-forward", Lang.bind(this, this._nextWallpaper)).actor );
     },
 
     /**
@@ -240,8 +239,8 @@ const WallpaperControlWidget = new Lang.Class({
  * @type {Lang.Class}
  */
 const ControlButton = new Lang.Class({
-    Name: Helper.prefixClassName('ControlButton'),
-    Extends: St.Button,
+    Name: 'ControlButton',
+    actor: {},
 
     /**
      * Creates a new button for use inside "WallpaperControlWidget"
@@ -255,15 +254,15 @@ const ControlButton = new Lang.Class({
             icon_size: 20
         });
 
-        this.parent({
+        this.actor = new St.Button({
             style_class: 'notification-icon-button control-button', // buttons styled like in Rhythmbox-notifications
             child: this.icon
         });
         this.icon.set_style('padding: 0px');
-        this.set_style('padding: 8px'); // Put less space between buttons
+        this.actor.set_style('padding: 8px'); // Put less space between buttons
 
         if (callback != undefined || callback != null){
-            this.connect('clicked', callback);
+            this.actor.connect('clicked', callback);
         }
     },
 
@@ -283,8 +282,8 @@ const ControlButton = new Lang.Class({
  * @type {Lang.Class}
  */
 const StateControlButton = new Lang.Class({
-    Name: Helper.prefixClassName("StateControlButton"),
-    Extends: St.Button,
+    Name: "StateControlButton",
+    actor: {},
 
     _state_index: 0,
     _states: [],
@@ -325,17 +324,17 @@ const StateControlButton = new Lang.Class({
             icon_size: 20
         });
 
-        this.parent({
+        this.actor = new St.Button({
             style_class: 'notification-icon-button control-button', // buttons styled like in Rhythmbox-notifications
             child: this.icon
         });
         this.icon.set_style('padding: 0px');
-        this.set_style('padding: 8px'); // Put less space between buttons
+        this.actor.set_style('padding: 8px'); // Put less space between buttons
 
         if (callback !== undefined || callback !== null){
             this._callback = callback;
         }
-        this.connect('clicked', Lang.bind(this, this._clicked));
+        this.actor.connect('clicked', Lang.bind(this, this._clicked));
     },
 
     /**
@@ -394,8 +393,8 @@ const StateControlButton = new Lang.Class({
  * @type {Lang.Class}
  */
 const ControlToggleButton = new Lang.Class({
-    Name: Helper.prefixClassName('ControlToggleButton'),
-    Extends: St.Button,
+    Name: 'ControlToggleButton',
+    actor: {},
 
     _callback: {},
 
@@ -412,30 +411,30 @@ const ControlToggleButton = new Lang.Class({
             icon_size: 20
         });
 
-        this.parent({
+        this.actor = new St.Button({
             toggle_mode: true,
             style_class: 'notification-icon-button', // buttons styled like in Rhythmbox-notifications
             child: this.icon
         });
         this.icon.set_style('padding: 0px');
-        this.set_style('padding: 8px'); // Put less space between buttons
+        this.actor.set_style('padding: 8px'); // Put less space between buttons
 
         if (callback != undefined || callback != null){
             this._callback = callback;
         }
-        this.connect('clicked', Lang.bind(this, this._onToggle));
+        this.actor.connect('clicked', Lang.bind(this, this._onToggle));
     },
 
     _onToggle: function(){
         // Glow the image:
-        if (this.checked){
-            this.style_class = 'notification-icon-button toggled';
+        if (this.actor.checked){
+            this.actor.style_class = 'notification-icon-button toggled';
         } else {
-            this.style_class = 'notification-icon-button';
+            this.actor.style_class = 'notification-icon-button';
         }
         // Trigger callback:
         if (this._callback !== null){
-            this._callback(this.checked);
+            this._callback(this.actor.checked);
         }
     },
 
@@ -445,9 +444,9 @@ const ControlToggleButton = new Lang.Class({
      */
     setState: function(on){
         if (typeof on === "boolean"){
-            this.checked = on;
+            this.actor.checked = on;
             if (on){
-                this.style_class = 'notification-icon-button toggled';
+                this.actor.style_class = 'notification-icon-button toggled';
             }
         }
     }
@@ -460,7 +459,7 @@ const ControlToggleButton = new Lang.Class({
  * @type {Lang.Class}
  */
 const DelaySlider = new Lang.Class({
-    Name: Helper.prefixClassName('DelaySlider'),
+    Name: 'DelaySlider',
     Extends: PopupMenu.PopupSliderMenuItem,
 
     _MINUTES_MAX: 59,
@@ -519,7 +518,7 @@ const DelaySlider = new Lang.Class({
  * @type {Lang.Class}
  */
 const LabelWidget = new Lang.Class({
-    Name: Helper.prefixClassName("LabelWidget"),
+    Name: "LabelWidget",
     Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(text){
