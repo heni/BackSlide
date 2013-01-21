@@ -10,6 +10,8 @@ const Shell = imports.gi.Shell;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Helper = Me.imports.helper;
 
+const Gettext = imports.gettext.domain('backslide');
+const _ = Gettext.gettext;
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  * @type {Lang.Class}
@@ -28,7 +30,7 @@ const OpenPrefsWidget = new Lang.Class({
         this._menu = menu;
         // The Label:
         this._button = new St.Button({
-            label: "Manage Wallpapers"
+            label: _("Manage Wallpapers")
         });
         this.addActor(this._button, {
             span: -1,

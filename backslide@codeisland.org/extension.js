@@ -11,7 +11,13 @@ const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
 const Time = Me.imports.timer;
 const Helper = Me.imports.helper;
-
+const Utils = Me.imports.utils;
+// CONST translation
+const Gettext = imports.gettext.domain('backslide');
+const _ = Gettext.gettext;
+const HOUR_UNIT = _("hours");
+const MINUTE_UNIT = _("mintues");
+const DELAY_STRING = _("(Delay %d %s)");
 /**
  * The new entry in the gnome3 status-area.
  * @type {Lang.Class}
@@ -22,6 +28,7 @@ const BackSlideEntry = new Lang.Class({
 
     _init: function(){
         // Attach to status-area:
+        
         this.parent(0.0, 'backslide');
         // Add the Icon:
         this.actor.show();
@@ -35,7 +42,7 @@ const BackSlideEntry = new Lang.Class({
         this.actor.add_style_class_name('panel-status-button');
 
         // Add the Widgets to the menu:
-        this.menu.addMenuItem(new Widget.LabelWidget("Up Next"));
+        this.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")));
         let next_wallpaper = new Widget.NextWallpaperWidget();
         wallpaper_control.setPreviewCallback(function(path){
             try {
@@ -53,11 +60,16 @@ const BackSlideEntry = new Lang.Class({
         control.setOrderState(settings.isRandom());
         this.menu.addMenuItem(control);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        let delay_slider_label = new Widget.LabelWidget("Delay ("+
-            ((settings.getDelay() > 60)
-                ? Math.floor(settings.getDelay() / 60)+" Hours)"
-                : settings.getDelay()+" Minutes)")
-        );
+        let minutes = 0;
+        let unit = MINUTE_UNIT;
+        if (settings.getDelay() > 60 ){
+            minutes = Math.floor(settings.getDelay() / 60);
+            unit = HOUR_UNIT;
+        } else {
+            minutes = settings.getDelay();
+        }
+        let delay_slider_label = new Widget.LabelWidget( DELAY_STRING.format(minutes, unit) );
+        
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.menu.addMenuItem(delay_slider);
@@ -94,9 +106,9 @@ const BackSlideEntry = new Lang.Class({
             settings.setDelay(delay_slider.getMinutes());
             let minutes = delay_slider.getMinutes();
             if (minutes > 60){
-                delay_slider_label.setText("Delay (" +Math.floor(minutes / 60)+" Hours)");
+                delay_slider_label.setText(DELAY_STRING.format(minutes, HOUR_UNIT));
             } else {
-                delay_slider_label.setText("Delay ("+minutes+" Minutes)");
+                delay_slider_label.setText(DELAY_STRING.format(minutes, MINUTE_UNIT));
             }
         });
 
@@ -108,6 +120,7 @@ const BackSlideEntry = new Lang.Class({
  * Called when the extension is first loaded (only once)
  */
 function init() {
+    Utils.initTranslations()
     wallpaper_control = new Wall.Wallpaper();
     settings = new Pref.Settings();
     timer = new Time.Timer();

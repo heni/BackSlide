@@ -10,6 +10,9 @@ const Pixbuf = imports.gi.GdkPixbuf;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
 
+const Gettext = imports.gettext.domain('backslide');
+const _ = Gettext.gettext;
+
 let settings;
 let list_selection;
 let visible = false;
@@ -72,7 +75,7 @@ function buildPrefsWidget(){
 
     // The image-column:
     let image_col = new Gtk.TreeViewColumn({
-        title: "Wallpaper"
+        title: _("Wallpaper")
     });
     image_tree.append_column(image_col);
     let image_renderer = new Gtk.CellRendererPixbuf();
@@ -142,7 +145,7 @@ function buildPrefsWidget(){
         var filter = new Gtk.FileFilter();
         filter.add_pixbuf_formats();
         let chooser = new Gtk.FileChooserDialog({
-            title: "Select the new wallpapers.",
+            title: _("Select the new wallpapers."),
             action: Gtk.FileChooserAction.OPEN,
             filter: filter,
             select_multiple: true
