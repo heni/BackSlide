@@ -10,7 +10,6 @@ const Widget = Me.imports.widgets;
 const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
 const Time = Me.imports.timer;
-const Helper = Me.imports.helper;
 const Utils = Me.imports.utils;
 // CONST translation
 const Gettext = imports.gettext.domain('backslide');
@@ -23,12 +22,11 @@ const DELAY_STRING = _("(Delay %d %s)");
  * @type {Lang.Class}
  */
 const BackSlideEntry = new Lang.Class({
-    Name: Helper.prefixClassName('BackSlideEntry'),
+    Name: 'BackSlideEntry',
     Extends: PanelMenu.Button,
 
     _init: function(){
         // Attach to status-area:
-        
         this.parent(0.0, 'backslide');
         // Add the Icon:
         this.actor.show();
