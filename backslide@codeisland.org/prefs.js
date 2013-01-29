@@ -9,6 +9,7 @@ const GObject = imports.gi.GObject;
 const Pixbuf = imports.gi.GdkPixbuf;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
+const Utils = Me.imports.utils;
 
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
@@ -20,6 +21,7 @@ let visible = false;
  * Called right after the file was loaded.
  */
 function init(){
+    Utils.initTranslations();
     settings = new Pref.Settings();
 }
 
