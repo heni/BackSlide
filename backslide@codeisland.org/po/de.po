@@ -1,0 +1,42 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-01-29 14:22+0100\n"
+"PO-Revision-Date: 2013-01-29 14:25+0100\n"
+"Last-Translator:  <mr.luke.187@googlemail.com>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: extension.js:17
+msgid "hours"
+msgstr "Stunden"
+
+#: extension.js:18
+msgid "minutes"
+msgstr "Minuten"
+
+#: extension.js:19
+#, c-format
+msgid "Delay (%d %s)"
+msgstr "Verzögerung (%d %s)"
+
+#: extension.js:44
+msgid "Up Next"
+msgstr "Nächstes Bild"
+
+#: prefs.js:78
+msgid "Wallpaper"
+msgstr "Hintergrundbild"
+
+#: prefs.js:148
+msgid "Select the new wallpapers."
+msgstr "Neue Hintergrundbilder auswählen"
+
+#: widgets.js:32
+msgid "Manage Wallpapers"
+msgstr "Hintergrundbilder verwalten"
