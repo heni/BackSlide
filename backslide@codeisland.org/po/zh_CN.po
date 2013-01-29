@@ -28,13 +28,13 @@ msgid "hours"
 msgstr "小时"
 
 #: /home/meng/z/backslide/backslide@codeisland.org/extension.js:19
-msgid "mintues"
+msgid "minutes"
 msgstr "分钟"
 
 #: /home/meng/z/backslide/backslide@codeisland.org/extension.js:20
 #, c-format
-msgid "(Delay %d %s)"
-msgstr "(延迟 %d %s)"
+msgid "Delay (%d %s)"
+msgstr "延迟 (%d %s)"
 
 #: /home/meng/z/backslide/backslide@codeisland.org/extension.js:45
 msgid "Up Next"

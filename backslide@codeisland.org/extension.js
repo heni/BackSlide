@@ -11,12 +11,10 @@ const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
 const Time = Me.imports.timer;
 const Utils = Me.imports.utils;
-// CONST translation
+// Import translation stuff
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
-const HOUR_UNIT = _("hours");
-const MINUTE_UNIT = _("mintues");
-const DELAY_STRING = _("(Delay %d %s)");
+
 /**
  * The new entry in the gnome3 status-area.
  * @type {Lang.Class}
@@ -58,15 +56,16 @@ const BackSlideEntry = new Lang.Class({
         control.setOrderState(settings.isRandom());
         this.menu.addMenuItem(control);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
         let minutes = 0;
-        let unit = MINUTE_UNIT;
+        let unit = _("minutes");
         if (settings.getDelay() > 60 ){
             minutes = Math.floor(settings.getDelay() / 60);
-            unit = HOUR_UNIT;
+            unit = _("hours");
         } else {
             minutes = settings.getDelay();
         }
-        let delay_slider_label = new Widget.LabelWidget( DELAY_STRING.format(minutes, unit) );
+        let delay_slider_label = new Widget.LabelWidget(_("Delay (%d %s)").format(minutes, unit) );
         
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
@@ -104,9 +103,11 @@ const BackSlideEntry = new Lang.Class({
             settings.setDelay(delay_slider.getMinutes());
             let minutes = delay_slider.getMinutes();
             if (minutes > 60){
-                delay_slider_label.setText(DELAY_STRING.format(minutes, HOUR_UNIT));
+                delay_slider_label.setText(_("Delay (%d %s)").format(
+                    Math.floor(settings.getDelay() / 60), _("hours"))
+                );
             } else {
-                delay_slider_label.setText(DELAY_STRING.format(minutes, MINUTE_UNIT));
+                delay_slider_label.setText(_("Delay (%d %s)").format(minutes, _("minutes")));
             }
         });
 
@@ -118,7 +119,7 @@ const BackSlideEntry = new Lang.Class({
  * Called when the extension is first loaded (only once)
  */
 function init() {
-    Utils.initTranslations()
+    Utils.initTranslations();
     wallpaper_control = new Wall.Wallpaper();
     settings = new Pref.Settings();
     timer = new Time.Timer();
