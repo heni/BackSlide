@@ -59,3 +59,7 @@ All settings can be changed from the `gnome-shell-extension-prefs`-tool or from 
 `dconf write /org/gnome/shell/extensions/backslide/elapsed-time 0`
 
 Settings changed, using the `dconf`-tool will **apply, after the extension is restarted**.
+
+### Contribute
+
+If you are a developer/translator and you want to contribute to BackSlide, make sure to read "DEVELOPMENT.md" or "TRANSLATION.md" respectively.
