@@ -415,7 +415,7 @@ const ControlToggleButton = new Lang.Class({
 
         this.actor = new St.Button({
             toggle_mode: true,
-            style_class: 'notification-icon-button', // buttons styled like in Rhythmbox-notifications
+            style_class: 'notification-icon-button untoggled', // buttons styled like in Rhythmbox-notifications
             child: this.icon
         });
         this.icon.set_style('padding: 0px');
@@ -430,9 +430,9 @@ const ControlToggleButton = new Lang.Class({
     _onToggle: function(){
         // Glow the image:
         if (this.actor.checked){
-            this.actor.style_class = 'notification-icon-button toggled';
-        } else {
             this.actor.style_class = 'notification-icon-button';
+        } else {
+            this.actor.style_class = 'notification-icon-button untoggled';
         }
         // Trigger callback:
         if (this._callback !== null){
@@ -448,7 +448,7 @@ const ControlToggleButton = new Lang.Class({
         if (typeof on === "boolean"){
             this.actor.checked = on;
             if (on){
-                this.actor.style_class = 'notification-icon-button toggled';
+                this.actor.style_class = 'notification-icon-button';
             }
         }
     }
