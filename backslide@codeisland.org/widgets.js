@@ -85,13 +85,24 @@ const NextWallpaperWidget = new Lang.Class({
             align: St.Align.MIDDLE
         });
         // The computer-picture:
-        this._icon = new St.Icon({
-            icon_name: "video-display",
-            icon_size: 220
-        });
-        if (St.IconType !== undefined){
-            this._icon.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
+        let screen_image = Me.dir.get_child('img').get_child("screen.png");
+        if (screen_image.query_exists(null)){
+            // If the theme-independent image is there, use it...
+            this._icon = new Clutter.Texture({
+                filter_quality: Clutter.TextureQuality.HIGH
+            });
+            this._icon.set_from_file(screen_image.get_path());
+        } else {
+            // ... otherwise, fall back on the theme-image. Might look ugly, see Issue #10
+            this._icon = new St.Icon({
+                icon_name: "video-display",
+                icon_size: 220
+            });
+            if (St.IconType !== undefined){
+                this._icon.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
+            }
         }
+        
 
         this._icon_bin = new St.Bin({
             child: this._icon,
