@@ -49,6 +49,10 @@ function addFileEntry(model, path, number){
 
 function addDirectory(model, path, number){
     let dir = Gio.file_new_for_path(path);
+    if (dir.query_file_type(Gio.FileQueryInfoFlags.NONE, null) != Gio.FileType.DIRECTORY){
+        // Not a valid directory!
+        return;
+    }
     // List all children:
     let children = dir.enumerate_children("*", Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
     let info;
@@ -112,6 +116,16 @@ function buildPrefsWidget(){
     let image_list = settings.getImageList();
     for (let i = 0; i < image_list.length; i++){
         addFileEntry(list_model, image_list[i], i+1);
+    }
+    // Pre-populate the list with default wallpapers:
+    if (image_list.length <= 0){
+        /*
+            Just want to add, I have a bad feeling that this will not on every
+            distribution be the directory where the "gnome-backgrounds"-package
+            stores it's images...
+            Anyways, if it's not, the search will gracefully die in peace.
+         */
+        addDirectory(list_model, "/usr/share/backgrounds/gnome/", 0);
     }
 
     // Toolbar to the right:
