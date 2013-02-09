@@ -6,6 +6,7 @@
  */
 const Gtk = imports.gi.Gtk;
 const GObject = imports.gi.GObject;
+const Gio = imports.gi.Gio;
 const Pixbuf = imports.gi.GdkPixbuf;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
@@ -17,6 +18,7 @@ const _ = Gettext.gettext;
 let settings;
 let list_selection;
 let visible = false;
+const IMAGE_REGEX = /^image\/\w+$/i;
 /**
  * Called right after the file was loaded.
  */
@@ -27,7 +29,7 @@ function init(){
 
 // TODO Keep numbering consistent (with row-changes).
 
-function addListEntry(model, path, number){
+function addFileEntry(model, path, number){
     // Load and scale the image from the given path:
     let image;
     try {
@@ -43,6 +45,24 @@ function addListEntry(model, path, number){
     // Append to the list:
     let iterator = model.append();
     model.set(iterator, [0,1,2], [number, image, path]);
+}
+
+function addDirectory(model, path, number){
+    let dir = Gio.file_new_for_path(path);
+    // List all children:
+    let children = dir.enumerate_children("*", Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
+    let info;
+    while ( (info = children.next_file(null)) != null){
+        if (info.get_file_type() == Gio.FileType.REGULAR && info.get_is_hidden() == false){
+            // Check if it's an image:
+            if (info.get_content_type().match(IMAGE_REGEX) != null){
+                addFileEntry(model, path+"/"+info.get_name(), number);
+            }
+        } else if (info.get_file_type() == Gio.FileType.DIRECTORY && !info.get_is_hidden()){
+            // Recursive search:
+            addDirectory(model, path+"/"+info.get_name(), number);
+        }
+    }
 }
 
 /**
@@ -91,7 +111,7 @@ function buildPrefsWidget(){
     // Fill the Model:
     let image_list = settings.getImageList();
     for (let i = 0; i < image_list.length; i++){
-        addListEntry(list_model, image_list[i], i+1);
+        addFileEntry(list_model, image_list[i], i+1);
     }
 
     // Toolbar to the right:
@@ -159,7 +179,15 @@ function buildPrefsWidget(){
             let files = chooser.get_filenames();
             // Add the selected files:
             for (let i = 0; i < files.length; i++){
-                addListEntry(list_model, files[i], i);
+                // Gather information:
+                let path = Gio.file_new_for_path(files[i]);
+                let type = path.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
+                // Check whether a directory or a file was chosen:
+                if (type == Gio.FileType.REGULAR){
+                    addFileEntry(list_model, files[i], i);
+                } else if (type == Gio.FileType.DIRECTORY){
+                    addDirectory(list_model, files[i], i);
+                }
             }
         }
         chooser.destroy();
