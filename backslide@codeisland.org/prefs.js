@@ -16,8 +16,7 @@ const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
 
 let settings;
-let list_selection;
-let visible = false;
+let ready = false;
 const IMAGE_REGEX = /^image\/\w+$/i;
 const PIXBUF_COL = 0;
 const PATH_COL = 1;
@@ -30,10 +29,27 @@ function init(){
 }
 
 function addFileEntry(model, path){
-    // Load and scale the image from the given path:
-    let image;
+    // Asynchronously load and scale the image from the given path:
     try {
-        image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 240, -1, true);
+        let file = Gio.file_new_for_path(path);
+        let stream = file.read(null);
+        /*
+            We need to assign the new "space" in the grid outside, to keep the order
+            of the list. Otherwise, we get the order in which the loading finishes...
+        */
+        let iterator = model.append();
+        // Load it Async:
+        Pixbuf.Pixbuf.new_from_stream_at_scale_async(stream, 240, -1, true, null,
+            function(source, res){                   // TODO Max-Height...!
+                // Get the loaded image:
+                let image = Pixbuf.Pixbuf.new_from_stream_finish(res);
+                if (image === undefined) return;
+                // Append to the list:
+                model.set(iterator, [PIXBUF_COL,PATH_COL], [image, path]);
+                // There is data in the list, we're ready to store if necessary:
+                ready = true;
+            }, 0
+        );
     } catch (e){
         // Image could not be loaded. Invalid path.
         /*
@@ -42,10 +58,6 @@ function addFileEntry(model, path){
         */
         print(e);
     }
-    if (image === undefined) return;
-    // Append to the list:
-    let iterator = model.append();
-    model.set(iterator, [PIXBUF_COL,PATH_COL], [image, path]);
 }
 
 function addDirectory(model, path){
@@ -260,11 +272,7 @@ function buildPrefsWidget(){
     // Store the changes in the settings, when the window is closed or the settings change:
     // Workaround, see https://bugzilla.gnome.org/show_bug.cgi?id=687510
     frame.connect('screen_changed', function(widget){
-        if (!visible){
-            visible = true; // Set this to prevent storing the list on initialisation of the widget.
-            return;
-        }
-        visible = false;
+        if (!ready) return;
         // Save the list:
         let [ success, iterator ] = grid_model.get_iter_first();
         let list = [];
