@@ -33,7 +33,7 @@ function addFileEntry(model, path){
     // Load and scale the image from the given path:
     let image;
     try {
-        image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 250, -1, true);
+        image = Pixbuf.Pixbuf.new_from_file_at_scale(path, 240, -1, true);
     } catch (e){
         // Image could not be loaded. Invalid path.
         /*
@@ -77,7 +77,7 @@ function addDirectory(model, path){
 function buildPrefsWidget(){
     let frame = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL,
-        width_request: 800,
+        width_request: 815,
         height_request: 600
     });
 
@@ -87,7 +87,6 @@ function buildPrefsWidget(){
     grid_model.set_column_types([Pixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
     // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
 
-    // TODO Make grid fit... look and feel, etc
     // TODO Make selection mode MULTIPLE and allow deleting multiple items (only delete??)
     // TODO Make new screenshot and update the README
     // The Image-Grid:
@@ -98,8 +97,10 @@ function buildPrefsWidget(){
         item_padding: 2,
         selection_mode: Gtk.SelectionMode.SINGLE,
         model: grid_model,
+        reorderable: false,
         pixbuf_column: PIXBUF_COL,
-        text_column: -1
+        text_column: -1,
+        markup_column: -1
     });
 
     let grid_scroll = new Gtk.ScrolledWindow();
