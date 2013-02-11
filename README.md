@@ -6,11 +6,11 @@ A simple Gnome-Shell Extension for an automatic background-image (wallpaper) sli
 
 The Widget:
 
-![Widget Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/3801467afe4c11dc0aaf31c126b3f740feef30de/_data/widget_screenshot.png)
+![Widget Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/42dac894181f6d28611876110cf1ed08c6468c4e/_data/widget_screenshot.jpg)
 
 The preferences page to manage the image list.
 
-![Preferences Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/3801467afe4c11dc0aaf31c126b3f740feef30de/_data/list_screenshot.png)
+![Preferences Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/42dac894181f6d28611876110cf1ed08c6468c4e/_data/list_screenshot.jpg)
 
 (Wallpapers **not** included)
 
