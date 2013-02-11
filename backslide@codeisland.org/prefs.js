@@ -87,7 +87,6 @@ function buildPrefsWidget(){
     grid_model.set_column_types([Pixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
     // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
 
-    // TODO Make selection mode MULTIPLE and allow deleting multiple items (only delete??)
     // TODO Make new screenshot and update the README
     // The Image-Grid:
     let image_grid = new Gtk.IconView({
@@ -95,7 +94,7 @@ function buildPrefsWidget(){
         columns: 3,
         expand: true,
         item_padding: 2,
-        selection_mode: Gtk.SelectionMode.SINGLE,
+        selection_mode: Gtk.SelectionMode.MULTIPLE,
         model: grid_model,
         reorderable: false,
         pixbuf_column: PIXBUF_COL,
@@ -137,14 +136,14 @@ function buildPrefsWidget(){
     });
     move_up_button.connect('clicked', function(){
         let selection = image_grid.get_selected_items();
-        if (selection.length != 0){
-            let [success, iterator_current] = grid_model.get_iter(selection[0]);
+        for (let i = selection.length-1; i >= 0; i--){ // Order is backwards...
+            let [success, iterator_current] = grid_model.get_iter(selection[i]);
             if (success){
                 let iterator_up = iterator_current.copy();
                 grid_model.iter_previous(iterator_current);
                 grid_model.swap(iterator_current, iterator_up);
                 // Manually fire the "row-changed"-event so "button_state_callback" gets triggered!
-                grid_model.row_changed(selection[0], iterator_current);
+                grid_model.row_changed(selection[i], iterator_current);
             }
         }
     });
@@ -159,14 +158,14 @@ function buildPrefsWidget(){
     });
     move_down_button.connect('clicked', function(){
         let selection = image_grid.get_selected_items();
-        if (selection.length != 0){
-            let [success, iterator_current] = grid_model.get_iter(selection[0]);
+        for (let i = 0; i < selection.length; i++){
+            let [success, iterator_current] = grid_model.get_iter(selection[i]);
             if (success){
                 let iterator_down = iterator_current.copy();
                 grid_model.iter_next(iterator_current);
                 grid_model.swap(iterator_current, iterator_down);
                 // Manually fire the "row-changed"-event so "button_state_callback" gets triggered!
-                grid_model.row_changed(selection[0], iterator_current);
+                grid_model.row_changed(selection[i], iterator_current);
             }
         }
     });
@@ -217,11 +216,10 @@ function buildPrefsWidget(){
     });
     remove_button.connect('clicked', function(){
         let selection = image_grid.get_selected_items();
-        if (selection.length != 0){
-            let [success, iterator_current] = grid_model.get_iter(selection[0]);
+        for (let i = 0; i < selection.length; i++){
+            let [success, iterator_current] = grid_model.get_iter(selection[i]);
             if (success){
                 grid_model.remove(iterator_current);
-                // TODO Move selection to next/previous item ?
             }
         }
     });
