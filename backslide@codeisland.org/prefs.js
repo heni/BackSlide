@@ -87,7 +87,6 @@ function buildPrefsWidget(){
     grid_model.set_column_types([Pixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
     // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
 
-    // TODO Make new screenshot and update the README
     // The Image-Grid:
     let image_grid = new Gtk.IconView({
         spacing: 2,
