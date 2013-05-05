@@ -6,6 +6,8 @@ We use [gettext](http://www.gnu.org/software/gettext/) for all translations. You
 
 * `msginit`
 * `msgfmt`
+* `msgmerge`
+* `xgettext` (Optional, for updating the template)
 
 These ship in different packages, depending on your distribution. Contact your distributions package manager or package-list online.
 
@@ -37,6 +39,42 @@ Here is a workflow-example from within the cloned git-repository. For this examp
     cp -rf backslide\@codeisland.org/ ~/.local/share/gnome-shell/extensions/
 
 For more information on this topic, consult the [official translation document](https://live.gnome.org/GnomeShell/Extensions/FAQ/CreatingExtensions).
+
+### How can I *update* a translation?
+
+If a translation is outdated (some new strings aren't translated yet), an update can be made to get the new strings in the `.po`-file, without deleting the old translations:
+
+    # Navigate to the translation folder
+    cd backslide\@codeisland.org/po/
+    # Use the convenient script to updated the .po file
+    #   REPLACE en WITH YOUR LANGUAGE!
+    ./update_translation.sh en.po
+    # Update the .po-file (add the new translations).
+    # When you're done, recompile the translation
+    cd ..
+    # REPLACE en WITH YOUR LANGUAGE!
+    msgfmt po/en.po -o locale/en/LC_MESSAGES/backslide.mo
+
+Now **test everything** and send in the new `.po`-file as described in ["How do I send in my translation?"](#how-do-i-send-in-my-translation).
+
+#### If you introduced new strings
+
+The above process *only works*, if the `default.pot`-file is up-to-date (which I will normally take care of).
+
+However, if for some reason you added new strings to any `.js`-file, which need translation, you have to update the `default.pot`-file first. To do so, use the script provided:
+
+    # Navigate to the translation folder
+    cd backslide\@codeisland.org/po/
+    # Use the convenient script to updated the default.pot file
+    ./update_template.sh
+
+**Be sure to check if everything is there first!** Afterwards, you can update the actual translations as shown in ["How can I *update* a translation?"](#how-can-i-update-a-translation)
+
+### How can I *correct* a translation?
+
+If you feel that something has not been translated very well or simply plain wrong, please [create a new issue](https://bitbucket.org/LukasKnuth/backslide/issues/new).
+
+If you can, you can also include an updated translation string, a patch or even send in a pull-request (see above for details on these topics).
 
 ### How do I send in my translation?
 
