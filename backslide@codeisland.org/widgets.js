@@ -28,15 +28,15 @@ const OpenPrefsWidget = new Lang.Class({
         this.parent();
         this._menu = menu;
         // The Label:
-        this._button = new St.Button({
-            label: _("Manage Wallpapers")
+        this._label = new St.Label({
+            text: _("Manage Wallpapers")
         });
-        this.addActor(this._button, {
+        this.addActor(this._label, {
             span: -1,
             align: St.Align.MIDDLE
         });
         // Connect:
-        this._button.connect('clicked', Lang.bind(this, this._onClick));
+        this.connect('activate', Lang.bind(this, this._onClick));
     },
 
     _onClick: function(){
