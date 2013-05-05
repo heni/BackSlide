@@ -11,31 +11,43 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:17
-msgid "hours"
+#: ../extension.js:41
+msgid "Up Next"
 msgstr ""
 
-#: extension.js:18
+#: ../extension.js:61 ../extension.js:110
 msgid "minutes"
 msgstr ""
 
-#: extension.js:19
+#: ../extension.js:64 ../extension.js:107
+msgid "hours"
+msgstr ""
+
+#: ../extension.js:68 ../extension.js:106 ../extension.js:110
 #, c-format
 msgid "Delay (%d %s)"
 msgstr ""
 
-#: extension.js:44
-msgid "Up Next"
+#: ../prefs.js:146
+msgid "Move selected Wallpapers up in the list."
 msgstr ""
 
-#: prefs.js:78
-msgid "Wallpaper"
+#: ../prefs.js:168
+msgid "Move selected Wallpapers down in the list."
 msgstr ""
 
-#: prefs.js:148
+#: ../prefs.js:191
+msgid "Add new Wallpapers"
+msgstr ""
+
+#: ../prefs.js:198
 msgid "Select the new wallpapers."
 msgstr ""
 
-#: widgets.js:32
+#: ../prefs.js:229
+msgid "Remove selected Wallpapers"
+msgstr ""
+
+#: ../widgets.js:32
 msgid "Manage Wallpapers"
 msgstr ""

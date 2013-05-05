@@ -142,7 +142,8 @@ function buildPrefsWidget(){
     // Move the selected wallpaper up in the list.
     let move_up_button = new Gtk.Button({
         image: new Gtk.Image({
-            icon_name: 'go-up'
+            icon_name: 'go-up',
+            tooltip_text: _("Move selected Wallpapers up in the list.")
         })
     });
     move_up_button.connect('clicked', function(){
@@ -163,7 +164,8 @@ function buildPrefsWidget(){
     // Move the selected wallpaper down in the list.
     let move_down_button = new Gtk.Button({
         image: new Gtk.Image({
-            icon_name: 'go-down'
+            icon_name: 'go-down',
+            tooltip_text: _("Move selected Wallpapers down in the list.")
         }),
         margin_bottom: 4
     });
@@ -185,7 +187,8 @@ function buildPrefsWidget(){
     // Add a Wallpaper to the list.
     let add_button = new Gtk.Button({
         image: new Gtk.Image({
-            icon_name: 'list-add'
+            icon_name: 'list-add',
+            tooltip_text: _("Add new Wallpapers")
         })
     });
     add_button.connect('clicked', function(){
@@ -222,7 +225,8 @@ function buildPrefsWidget(){
     // Remove a Wallpaper from the list:
     let remove_button = new Gtk.Button({
         image: new Gtk.Image({
-            icon_name: 'list-remove'
+            icon_name: 'list-remove',
+            tooltip_text: _("Remove selected Wallpapers")
         })
     });
     remove_button.connect('clicked', function(){
