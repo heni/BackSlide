@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Backslide\n"
 "Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
-"POT-Creation-Date: 2013-01-29 14:42+0100\n"
+"POT-Creation-Date: 2013-05-07 20:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lukas Knuth <mr.luke.187@googlemail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,6 +46,12 @@ msgstr ""
 
 #: ../prefs.js:229
 msgid "Remove selected Wallpapers"
+msgstr ""
+
+#: ../wallpaper.js:222
+msgid ""
+"The following images where invalid (not found or not image-types) and have "
+"been removed:"
 msgstr ""
 
 #: ../widgets.js:32

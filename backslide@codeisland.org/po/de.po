@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
-"POT-Creation-Date: 2013-01-29 14:42+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-05-07 20:35+0200\n"
 "PO-Revision-Date: 2013-01-29 14:25+0100\n"
 "Last-Translator:  <mr.luke.187@googlemail.com>\n"
 "Language-Team: German\n"
@@ -48,6 +48,12 @@ msgstr "Neue Hintergrundbilder auswählen"
 #: ../prefs.js:229
 msgid "Remove selected Wallpapers"
 msgstr "Entferne ausgewählte Hintergrundbilder"
+
+#: ../wallpaper.js:222
+msgid ""
+"The following images where invalid (not found or not image-types) and have "
+"been removed:"
+msgstr "Die folgenden Dateien waren keine Bilder oder nicht zu finden und wurden deshalb entfernt:"
 
 #: ../widgets.js:32
 msgid "Manage Wallpapers"

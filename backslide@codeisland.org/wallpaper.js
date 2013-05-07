@@ -4,6 +4,9 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
 const Notify = Me.imports.notification;
 
+const Gettext = imports.gettext.domain('backslide');
+const _ = Gettext.gettext;
+
 /**
  * This is where the list of wallpapers is maintained and the current
  *  wallpaper is set.
@@ -216,7 +219,7 @@ const Wallpaper = new Lang.Class({
             }
             this._notify.notify(
                 "BackSlide Wallpaper Error",
-                "The following images where invalid (not found or not image-types) and have been removed:",
+                _("The following images where invalid (not found or not image-types) and have been removed:"),
                 body
             );
         }
