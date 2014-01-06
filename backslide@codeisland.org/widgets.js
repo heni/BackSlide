@@ -8,6 +8,7 @@ const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
 const Shell = imports.gi.Shell;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Slider = imports.ui.slider;
 
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
@@ -31,10 +32,12 @@ const OpenPrefsWidget = new Lang.Class({
         this._label = new St.Label({
             text: _("Manage Wallpapers")
         });
-        this.addActor(this._label, {
+
+        this.actor.add_child(this._label, {
             span: -1,
             align: St.Align.MIDDLE
         });
+
         // Connect:
         this.connect('activate', Lang.bind(this, this._onClick));
     },
@@ -80,10 +83,17 @@ const NextWallpaperWidget = new Lang.Class({
         this._box = new St.BoxLayout({
             vertical: true
         });
-        this.addActor(this._box, {
+//        this.addActor(this._box, {
+//            span: -1,
+//            align: St.Align.MIDDLE
+//        });
+
+        // testedit 2
+        this.actor.add_child(this._box, {
             span: -1,
             align: St.Align.MIDDLE
         });
+
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
         if (screen_image.query_exists(null)){
@@ -186,10 +196,12 @@ const WallpaperControlWidget = new Lang.Class({
         this.box = new St.BoxLayout({
             style_class: 'controls' // Check the stylesheet.css file!
         });
-        this.addActor(this.box, {
+
+        this.actor.add_child(this.box, {
             span: -1, // Take all the available space.
             align: St.Align.MIDDLE // See http://git.gnome.org/browse/gnome-shell/tree/js/ui/popupMenu.js#n150
         });
+
         // Add the buttons:
         this._order_button = new ControlToggleButton(
             "media-playlist-shuffle", Lang.bind(this, this._orderStateChanged)
@@ -467,13 +479,52 @@ const ControlToggleButton = new Lang.Class({
 
 // -------------------------------------------------------------------------------
 
+// borrowed from: https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer
+const SliderItem = new Lang.Class({
+    Name: 'SliderItem',
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    _init: function(value, label, icon) {
+        this.parent();
+
+        this._box = new St.Table({style_class: 'slider-item'});
+
+        this._icon = new St.Icon({style_class: 'menu-icon', icon_name: icon + '-symbolic'});
+        this._slider = new Slider.Slider(value);
+        this._label = new St.Label({text: label});
+
+        this._box.add(this._icon, {row: 0, col: 0, x_expand: false});
+        this._box.add(this._label, {row: 0, col: 1, x_expand: false});
+        this._box.add(this._slider.actor, {row: 0, col: 2, x_expand: true});
+        this.actor.add(this._box, {span: -1, expand: true});
+    },
+
+    setValue: function(value) {
+        this._slider.setValue(value);
+    },
+
+    setIcon: function(icon) {
+        this._icon.icon_name = icon + '-symbolic';
+    },
+
+    setLabel: function(text) {
+        if (this.clutter_text)
+            this.text = text;
+    },
+
+    connect: function(signal, callback) {
+        this._slider.connect(signal, callback);
+    }
+});
+
+
 /**
  * Widget for setting the delay for the next Wallpaper-change.
  * @type {Lang.Class}
  */
 const DelaySlider = new Lang.Class({
     Name: 'DelaySlider',
-    Extends: PopupMenu.PopupSliderMenuItem,
+    Extends: SliderItem,
 
     _MINUTES_MAX: 59,
     _MINUTES_MIN: 5,
@@ -485,7 +536,7 @@ const DelaySlider = new Lang.Class({
      * @private
      */
     _init: function(minutes){
-        this.parent(0); // value MUST be specified!
+        this.parent(0, ''); // value MUST be specified!
         this.setMinutes(minutes); // Set the real value.
     },
 
@@ -506,6 +557,7 @@ const DelaySlider = new Lang.Class({
         } else {
             value = (((minutes / 60) - this._HOURS_MIN) / (this._HOURS_MAX - this._HOURS_MIN) / 2) + 0.5;
         }
+
         this.setValue(value);
     },
 
@@ -539,10 +591,13 @@ const LabelWidget = new Lang.Class({
             reactive: false // Can't be focused/clicked.
         });
 
+        global.log("LabelWidget._init before");
         this._label = new St.Label({
             text: text
         });
-        this.addActor(this._label);
+        global.log("LabelWidget._init after");
+
+        this.actor.add_child(this._label);
     },
 
     /**
@@ -550,8 +605,12 @@ const LabelWidget = new Lang.Class({
      * @param text the new text.
      */
     setText: function(text){
-        if (this._label.clutter_text){
-            this._label.text = text.toString();
+        global.log("LabelWidget.setText before");
+
+        if (this.clutter_text){
+            this.text = text.toString();
         }
+
+        global.log("LabelWidget.setText after");
     }
 });

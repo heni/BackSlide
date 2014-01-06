@@ -66,7 +66,7 @@ const BackSlideEntry = new Lang.Class({
             minutes = settings.getDelay();
         }
         let delay_slider_label = new Widget.LabelWidget(_("Delay (%d %s)").format(minutes, unit) );
-        
+
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.menu.addMenuItem(delay_slider);
