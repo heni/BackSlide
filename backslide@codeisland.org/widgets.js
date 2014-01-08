@@ -603,8 +603,6 @@ const LabelWidget = new Lang.Class({
      * @param text the new text.
      */
     setText: function(text){
-        if (this.clutter_text){
-            this.text = text.toString();
-        }
+        this._label.text = text.toString();
     }
 });

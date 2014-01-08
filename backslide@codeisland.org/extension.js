@@ -105,13 +105,17 @@ const BackSlideEntry = new Lang.Class({
         delay_slider.connect('value-changed', function(){
             settings.setDelay(delay_slider.getMinutes());
             let minutes = delay_slider.getMinutes();
+
+            global.log('Extension Slider value-changed: returned minutes = ' + minutes);
+
+            let label_text;
             if (minutes > 60){
-                delay_slider_label.setText(_("Delay (%d %s)").format(
-                    Math.floor(settings.getDelay() / 60), _("hours"))
-                );
+                label_text = _("Delay (%d %s)").format(Math.floor(settings.getDelay() / 60), _("hours"));
             } else {
-                delay_slider_label.setText(_("Delay (%d %s)").format(minutes, _("minutes")));
+                label_text = _("Delay (%d %s)").format(minutes, _("minutes"));
             }
+
+            delay_slider_label.setText(label_text);
         });
 
         // TODO Widgets react on external changes of settings
