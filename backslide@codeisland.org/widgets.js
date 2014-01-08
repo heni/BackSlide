@@ -83,12 +83,7 @@ const NextWallpaperWidget = new Lang.Class({
         this._box = new St.BoxLayout({
             vertical: true
         });
-//        this.addActor(this._box, {
-//            span: -1,
-//            align: St.Align.MIDDLE
-//        });
 
-        // testedit 2
         this.actor.add_child(this._box, {
             span: -1,
             align: St.Align.MIDDLE
@@ -503,6 +498,10 @@ const SliderItem = new Lang.Class({
         this._slider.setValue(value);
     },
 
+    getValue: function() {
+        return this._slider._getCurrentValue();
+    },
+
     setIcon: function(icon) {
         this._icon.icon_name = icon + '-symbolic';
     },
@@ -567,12 +566,13 @@ const DelaySlider = new Lang.Class({
      */
     getMinutes: function(){
         let minutes = 0;
-        if (this._value < 0.5){
-            minutes = this._MINUTES_MIN + (this._value * 2) * (this._MINUTES_MAX - this._MINUTES_MIN);
+        if (this.getValue() < 0.5) {
+            minutes = this._MINUTES_MIN + (this.getValue() * 2) * (this._MINUTES_MAX - this._MINUTES_MIN);
         } else {
-            minutes = (this._HOURS_MIN + (this._value - 0.5) * 2 * (this._HOURS_MAX - this._HOURS_MIN)) * 60;
+            minutes = (this._HOURS_MIN + (this.getValue() - 0.5) * 2 * (this._HOURS_MAX - this._HOURS_MIN)) * 60;
         }
-        return ((minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : Math.floor(minutes));
+
+        return (minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : Math.floor(minutes);
     }
 });
 
@@ -591,11 +591,9 @@ const LabelWidget = new Lang.Class({
             reactive: false // Can't be focused/clicked.
         });
 
-        global.log("LabelWidget._init before");
         this._label = new St.Label({
             text: text
         });
-        global.log("LabelWidget._init after");
 
         this.actor.add_child(this._label);
     },
@@ -605,12 +603,8 @@ const LabelWidget = new Lang.Class({
      * @param text the new text.
      */
     setText: function(text){
-        global.log("LabelWidget.setText before");
-
         if (this.clutter_text){
             this.text = text.toString();
         }
-
-        global.log("LabelWidget.setText after");
     }
 });
