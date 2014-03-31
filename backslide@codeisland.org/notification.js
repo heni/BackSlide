@@ -30,7 +30,6 @@ const Notification = new Lang.Class({
                 bodyMarkup: true
             }
         );
-        notification.setTransient(true);
         this._source.notify(notification);
     }
 });
