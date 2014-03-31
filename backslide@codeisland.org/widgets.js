@@ -81,7 +81,8 @@ const NextWallpaperWidget = new Lang.Class({
 
         // Overall Box:
         this._box = new St.BoxLayout({
-            vertical: true
+            vertical: true,
+            height: 200
         });
 
         this.actor.add_child(this._box, {
@@ -132,8 +133,7 @@ const NextWallpaperWidget = new Lang.Class({
         // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
         let box = this._wallpaper;
         this._overlay_idle_id = Mainloop.idle_add(function () {
-            box.y = 0;
-            box.anchor_y = box.height/2;
+            box.anchor_y = 162;
             return false;
         });
     },
@@ -189,12 +189,12 @@ const WallpaperControlWidget = new Lang.Class({
         });
         // Add the layout:
         this.box = new St.BoxLayout({
-            style_class: 'controls' // Check the stylesheet.css file!
+            style_class: 'controls', // Check the stylesheet.css file!
+            style: 'padding-left: 47px;'
         });
 
-        this.actor.add_child(this.box, {
-            span: -1, // Take all the available space.
-            align: St.Align.MIDDLE // See http://git.gnome.org/browse/gnome-shell/tree/js/ui/popupMenu.js#n150
+        this.actor.add(this.box, {
+          expand: true
         });
 
         // Add the buttons:
