@@ -133,7 +133,7 @@ const NextWallpaperWidget = new Lang.Class({
         // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
         let box = this._wallpaper;
         this._overlay_idle_id = Mainloop.idle_add(function () {
-            box.anchor_y = 162;
+            box.anchor_y = 161;
             return false;
         });
     },
