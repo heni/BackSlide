@@ -8,6 +8,7 @@ const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
 const Shell = imports.gi.Shell;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Slider = imports.ui.slider;
 
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
@@ -31,10 +32,12 @@ const OpenPrefsWidget = new Lang.Class({
         this._label = new St.Label({
             text: _("Manage Wallpapers")
         });
-        this.addActor(this._label, {
+
+        this.actor.add_child(this._label, {
             span: -1,
             align: St.Align.MIDDLE
         });
+
         // Connect:
         this.connect('activate', Lang.bind(this, this._onClick));
     },
@@ -78,12 +81,15 @@ const NextWallpaperWidget = new Lang.Class({
 
         // Overall Box:
         this._box = new St.BoxLayout({
-            vertical: true
+            vertical: true,
+            height: 200
         });
-        this.addActor(this._box, {
+
+        this.actor.add_child(this._box, {
             span: -1,
             align: St.Align.MIDDLE
         });
+
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
         if (screen_image.query_exists(null)){
@@ -127,8 +133,7 @@ const NextWallpaperWidget = new Lang.Class({
         // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
         let box = this._wallpaper;
         this._overlay_idle_id = Mainloop.idle_add(function () {
-            box.y = 0;
-            box.anchor_y = box.height/2;
+            box.anchor_y = 161;
             return false;
         });
     },
@@ -184,12 +189,14 @@ const WallpaperControlWidget = new Lang.Class({
         });
         // Add the layout:
         this.box = new St.BoxLayout({
-            style_class: 'controls' // Check the stylesheet.css file!
+            style_class: 'controls', // Check the stylesheet.css file!
+            style: 'padding-left: 47px;'
         });
-        this.addActor(this.box, {
-            span: -1, // Take all the available space.
-            align: St.Align.MIDDLE // See http://git.gnome.org/browse/gnome-shell/tree/js/ui/popupMenu.js#n150
+
+        this.actor.add(this.box, {
+          expand: true
         });
+
         // Add the buttons:
         this._order_button = new ControlToggleButton(
             "media-playlist-shuffle", Lang.bind(this, this._orderStateChanged)
@@ -467,13 +474,47 @@ const ControlToggleButton = new Lang.Class({
 
 // -------------------------------------------------------------------------------
 
+// borrowed from: https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer
+const SliderItem = new Lang.Class({
+    Name: 'SliderItem',
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    _init: function(value) {
+        this.parent();
+
+        this._box = new St.Table({style_class: 'slider-item'});
+
+        this._slider = new Slider.Slider(value);
+
+        this._box.add(this._slider.actor, {row: 0, col: 2, x_expand: true});
+        this.actor.add(this._box, {span: -1, expand: true});
+    },
+
+    setValue: function(value) {
+        this._slider.setValue(value);
+    },
+
+    getValue: function() {
+        return this._slider._getCurrentValue();
+    },
+
+    setIcon: function(icon) {
+        this._icon.icon_name = icon + '-symbolic';
+    },
+
+    connect: function(signal, callback) {
+        this._slider.connect(signal, callback);
+    }
+});
+
+
 /**
  * Widget for setting the delay for the next Wallpaper-change.
  * @type {Lang.Class}
  */
 const DelaySlider = new Lang.Class({
     Name: 'DelaySlider',
-    Extends: PopupMenu.PopupSliderMenuItem,
+    Extends: SliderItem,
 
     _MINUTES_MAX: 59,
     _MINUTES_MIN: 5,
@@ -485,7 +526,7 @@ const DelaySlider = new Lang.Class({
      * @private
      */
     _init: function(minutes){
-        this.parent(0); // value MUST be specified!
+        this.parent(0, ''); // value MUST be specified!
         this.setMinutes(minutes); // Set the real value.
     },
 
@@ -506,6 +547,7 @@ const DelaySlider = new Lang.Class({
         } else {
             value = (((minutes / 60) - this._HOURS_MIN) / (this._HOURS_MAX - this._HOURS_MIN) / 2) + 0.5;
         }
+
         this.setValue(value);
     },
 
@@ -515,12 +557,13 @@ const DelaySlider = new Lang.Class({
      */
     getMinutes: function(){
         let minutes = 0;
-        if (this._value < 0.5){
-            minutes = this._MINUTES_MIN + (this._value * 2) * (this._MINUTES_MAX - this._MINUTES_MIN);
+        if (this.getValue() < 0.5) {
+            minutes = this._MINUTES_MIN + (this.getValue() * 2) * (this._MINUTES_MAX - this._MINUTES_MIN);
         } else {
-            minutes = (this._HOURS_MIN + (this._value - 0.5) * 2 * (this._HOURS_MAX - this._HOURS_MIN)) * 60;
+            minutes = (this._HOURS_MIN + (this.getValue() - 0.5) * 2 * (this._HOURS_MAX - this._HOURS_MIN)) * 60;
         }
-        return ((minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : Math.floor(minutes));
+
+        return (minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : Math.floor(minutes);
     }
 });
 
@@ -542,7 +585,8 @@ const LabelWidget = new Lang.Class({
         this._label = new St.Label({
             text: text
         });
-        this.addActor(this._label);
+
+        this.actor.add_child(this._label);
     },
 
     /**
@@ -550,8 +594,6 @@ const LabelWidget = new Lang.Class({
      * @param text the new text.
      */
     setText: function(text){
-        if (this._label.clutter_text){
-            this._label.text = text.toString();
-        }
+        this._label.text = text;
     }
 });

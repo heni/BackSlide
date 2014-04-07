@@ -14,6 +14,9 @@ const Utils = Me.imports.utils;
 // Import translation stuff
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
+// Get shell version
+const ShellVersion = imports.misc.config.PACKAGE_VERSION.split(".");
+
 
 /**
  * The new entry in the gnome3 status-area.
@@ -66,7 +69,7 @@ const BackSlideEntry = new Lang.Class({
             minutes = settings.getDelay();
         }
         let delay_slider_label = new Widget.LabelWidget(_("Delay (%d %s)").format(minutes, unit) );
-        
+
         this.menu.addMenuItem(delay_slider_label);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.menu.addMenuItem(delay_slider);
@@ -102,13 +105,17 @@ const BackSlideEntry = new Lang.Class({
         delay_slider.connect('value-changed', function(){
             settings.setDelay(delay_slider.getMinutes());
             let minutes = delay_slider.getMinutes();
+
+            global.log('Extension Slider value-changed: returned minutes = ' + minutes);
+
+            let label_text;
             if (minutes > 60){
-                delay_slider_label.setText(_("Delay (%d %s)").format(
-                    Math.floor(settings.getDelay() / 60), _("hours"))
-                );
+                label_text = _("Delay (%d %s)").format(Math.floor(settings.getDelay() / 60), _("hours"));
             } else {
-                delay_slider_label.setText(_("Delay (%d %s)").format(minutes, _("minutes")));
+                label_text = _("Delay (%d %s)").format(minutes, _("minutes"));
             }
+
+            delay_slider_label.setText(label_text);
         });
 
         // TODO Widgets react on external changes of settings
@@ -129,6 +136,13 @@ let wallpaper_control;
 let settings;
 let timer;
 let menu_entry;
+
+/**
+ * Called to determine the shell version. Used to be backwards compatible in some places.
+ */
+function isGnomeShell10OrHigher() {
+    return ShellVersion[0] === '3' && parseInt(ShellVersion[1], 10) >= 10;
+}
 
 /**
  * Called when the extension is activated (maybe multiple times)

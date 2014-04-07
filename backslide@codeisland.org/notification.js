@@ -30,7 +30,6 @@ const Notification = new Lang.Class({
                 bodyMarkup: true
             }
         );
-        notification.setTransient(true);
         this._source.notify(notification);
     }
 });
@@ -52,7 +51,6 @@ const SimpleSource = new Lang.Class({
     _init: function(title, icon_name){
         this.parent(title, icon_name);
         this._icon_name = icon_name;
-        this.setTransient(true);
     },
 
     createNotificationIcon: function() {
