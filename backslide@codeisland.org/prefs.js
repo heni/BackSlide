@@ -5,6 +5,7 @@
  * @see <a href="https://live.gnome.org/GnomeShell/Extensions#Extension_Preferences">Doc</a>
  */
 const Gtk = imports.gi.Gtk;
+const Gdk = imports.gi.Gdk;
 const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Pixbuf = imports.gi.GdkPixbuf;
@@ -82,6 +83,25 @@ function addDirectory(model, path){
     }
 }
 
+function addGioFile(model, file){
+    // Gather information:
+    let type = file.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
+    // Check whether a directory or a file wasen:
+    if (type == Gio.FileType.REGULAR){
+        addFileEntry(model, file.get_path());
+    } else if (type == Gio.FileType.DIRECTORY){
+        addDirectory(model, file.get_path());
+    }
+}
+
+function addPath(model, path){
+    addGioFile(model, Gio.file_new_for_path(path));
+}
+
+function addURI(model, uri){
+    addGioFile(model, Gio.file_new_for_uri(uri));
+}
+
 /**
  * Called to build a preferences widget.
  * @return object any type of GTK+ widget to be placed inside the prefs window.
@@ -113,9 +133,27 @@ function buildPrefsWidget(){
         markup_column: -1
     });
 
+    // Set up DnD
+    image_grid.drag_dest_set(Gtk.DestDefaults.ALL, null, Gdk.DragAction.COPY | Gdk.DragAction.MOVE | Gdk.DragAction.LINK);
+    let target_list = Gtk.TargetList.new([]);
+    target_list.add_uri_targets(0);
+    image_grid.drag_dest_set_target_list(target_list);
+    image_grid.connect('drag-data-received', function(widget, drag_context, x, y, data, info, time, user_data){
+        let uris = data.get_uris();
+        for (let i = 0; i < uris.length; i++) {
+            let uri = uris [i];
+            addURI(grid_model, uri);
+        }
+    });
+
     let grid_scroll = new Gtk.ScrolledWindow();
     grid_scroll.add(image_grid);
     frame.add(grid_scroll);
+
+
+/*    grid_scroll.drag_dest_set(Gtk.DestDefaults.ALL, null, Gdk.DragAction.MOVE);
+    grid_scroll.drag_dest_add_image_targets();*/
+
 
     // Fill the Model:
     let image_list = settings.getImageList();
@@ -207,15 +245,7 @@ function buildPrefsWidget(){
             let files = chooser.get_filenames();
             // Add the selected files:
             for (let i = 0; i < files.length; i++){
-                // Gather information:
-                let path = Gio.file_new_for_path(files[i]);
-                let type = path.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
-                // Check whether a directory or a file was chosen:
-                if (type == Gio.FileType.REGULAR){
-                    addFileEntry(grid_model, files[i]);
-                } else if (type == Gio.FileType.DIRECTORY){
-                    addDirectory(grid_model, files[i]);
-                }
+                addPath(grid_model, files[i]);
             }
         }
         chooser.destroy();
