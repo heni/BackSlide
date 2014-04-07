@@ -26,11 +26,16 @@ If you need to "install" the extension manually, you'll need the following utili
 * `glib-compile-schemas`
 * `gnome-tweak-tool` (Optional)
 
-The packages which include the above tools may vary across different Linux distributions. Check your distributions wiki/package list to find the most suitable package for you. Afterwards, simply follow these steps:
+The packages which include the above tools may vary across different Linux distributions. Check your distributions wiki/package list to find the most suitable package for you.
 
+There are multiple stable branches, depending on the version of GnomeShell you're running. Check the `DEVELOPMENT.md`-file for information on those branches. To build the extension, follow these steps:
+
+    :::bash
     # Clone the repository (you might already did this!)
     git clone https://LukasKnuth@bitbucket.org/LukasKnuth/backslide.git BackSlide
     cd BackSlide
+      # EXAMPLE: Build for an older GnomeShell version
+      git checkout gnome-3.8 # ONLY if you need to!
     # "Compile" the settings-schema:
     glib-compile-schemas backslide\@codeisland.org/schemas/
     # Copy the files over to the local extension directory:
