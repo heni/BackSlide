@@ -1,4 +1,8 @@
-# Grabs the last session-errors from the current X11 session.
-# This includes full Stack-Trace of gnome-shell-extension errors.
-# See https://live.gnome.org/GnomeShell/Extensions/StepByStepTutorial#lookingGlass
-tail -n100 ~/.cache/gdm/session.log | less
+# This grabs the output of the current gnome-shell session, IF it has been
+# started using the "start-loggin-session.sh"-script in this directory!
+if [ -f /tmp/gnome.log ];
+then
+	tail -n100 /tmp/gnome.log | less '+>'
+else
+	echo "The log-file doesn't exist. Did you start the shell with the start-logging-session.sh script??"
+fi
