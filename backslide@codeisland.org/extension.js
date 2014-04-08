@@ -14,9 +14,6 @@ const Utils = Me.imports.utils;
 // Import translation stuff
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
-// Get shell version
-const ShellVersion = imports.misc.config.PACKAGE_VERSION.split(".");
-
 
 /**
  * The new entry in the gnome3 status-area.
@@ -136,13 +133,6 @@ let wallpaper_control;
 let settings;
 let timer;
 let menu_entry;
-
-/**
- * Called to determine the shell version. Used to be backwards compatible in some places.
- */
-function isGnomeShell10OrHigher() {
-    return ShellVersion[0] === '3' && parseInt(ShellVersion[1], 10) >= 10;
-}
 
 /**
  * Called when the extension is activated (maybe multiple times)
