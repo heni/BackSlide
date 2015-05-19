@@ -6,7 +6,7 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
-const Shell = imports.gi.Shell;
+const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Slider = imports.ui.slider;
 
@@ -50,15 +50,9 @@ const OpenPrefsWidget = new Lang.Class({
     /**
      * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
      *  with the given uuid.</p>
-     * <p>This function is copied over from "js/ui/shellDBus.js".</p>
-     * @param uuid the uuid of the extension.
-     * @see js/ui/shellDBus.js
      */
     launchExtensionPrefs: function(uuid) {
-        let appSys = Shell.AppSystem.get_default();
-        let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-        app.launch(global.display.get_current_time_roundtrip(),
-            ['extension:///' + uuid], -1, null);
+        Main.Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
 });
 
