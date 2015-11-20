@@ -100,19 +100,20 @@ const BackSlideEntry = new Lang.Class({
 
         // React on delay-change:
         delay_slider.connect('value-changed', function(){
-            settings.setDelay(delay_slider.getMinutes());
             let minutes = delay_slider.getMinutes();
 
             global.log('Extension Slider value-changed: returned minutes = ' + minutes);
 
             let label_text;
             if (minutes > 60){
-                label_text = _("Delay (%d %s)").format(Math.floor(settings.getDelay() / 60), _("hours"));
+                label_text = _("Delay (%d %s)").format(Math.floor(minutes / 60), _("hours"));
             } else {
                 label_text = _("Delay (%d %s)").format(minutes, _("minutes"));
             }
 
             delay_slider_label.setText(label_text);
+
+            settings.setDelay(minutes);
         });
 
         // TODO Widgets react on external changes of settings
