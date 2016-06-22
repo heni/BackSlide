@@ -475,7 +475,7 @@ const SliderItem = new Lang.Class({
 
     _init: function(value) {
         this.parent();
-		var layout = new Clutter.TableLayout();
+        var layout = new Clutter.TableLayout();
         this._box = new St.Widget({
 							style_class: 'slider-item',
 							layout_manager: layout});
