@@ -39,6 +39,7 @@ const Settings = new Lang.Class({
      */
     _setting: {},
     _background_setting: {},
+    _screensaver_setting: {},
 
     /**
      * Creates a new Settings-object to access the settings of this extension.
@@ -57,6 +58,9 @@ const Settings = new Lang.Class({
         });
         this._background_setting = new Gio.Settings({
             schema: "org.gnome.desktop.background"
+        });
+        this._screensaver_setting = new Gio.Settings({
+            schema: "org.gnome.desktop.screensaver"
         });
     },
 
@@ -204,14 +208,21 @@ const Settings = new Lang.Class({
         let key = KEY_WALLPAPER;
         if (this._background_setting.is_writable(key)){
             // Set a new Background-Image (should show up immediately):
-            if (this._background_setting.set_string(key, "file://"+path) ){
-                Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
-            } else {
+            if (!this._background_setting.set_string(key, "file://"+path) ){
                 throw this._errorSet(key);
             }
         } else {
             throw this._errorWritable(key);
         }
+        if (this._screensaver_setting.is_writable(key)){
+            // Set a new Screensaver-Image:
+            if (!this._screensaver_setting.set_string(key, "file://"+path) ){
+                throw this._errorSet(key);
+            }
+        } else {
+            throw this._errorWritable(key);
+        }
+        Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
     },
 
     /**
