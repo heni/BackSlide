@@ -51,10 +51,9 @@ const OpenPrefsWidget = new Lang.Class({
             text: _("Manage Wallpapers")
         });
 
-        this.actor.add_child(this._label, {
-            span: -1,
-            align: St.Align.MIDDLE
-        });
+        this.actor.add_child(this._label);
+        this._label.span = -1;
+        this._label.align = St.Align.MIDDLE;
 
         // Connect:
         this.connect('activate', Lang.bind(this, this._onClick));
@@ -97,10 +96,9 @@ const NextWallpaperWidget = new Lang.Class({
             height: 200
         });
 
-        this.actor.add_child(this._box, {
-            span: -1,
-            align: St.Align.MIDDLE
-        });
+        this.actor.add_child(this._box)
+        this._box.span = -1;
+        this._box.align = St.Align.MIDDLE;
 
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
@@ -120,7 +118,7 @@ const NextWallpaperWidget = new Lang.Class({
                 this._icon.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
             }
         }
-        
+
 
         this._icon_bin = new St.Bin({
             child: this._icon,
