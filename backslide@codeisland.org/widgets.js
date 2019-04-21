@@ -24,7 +24,7 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
-const Main = imports.ui.main;
+const Util = imports.misc.util;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Slider = imports.ui.slider;
 
@@ -71,7 +71,7 @@ const OpenPrefsWidget = new Lang.Class({
      *  with the given uuid.</p>
      */
     launchExtensionPrefs: function(uuid) {
-        Main.Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
+        Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
 });
 
