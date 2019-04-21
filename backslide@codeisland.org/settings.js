@@ -29,7 +29,7 @@ const KEY_ELAPSED_TIME = "elapsed-time";
  * This class takes care of reading/writing the settings from/to the GSettings backend.
  * @type {Lang.Class}
  */
-const Settings = new Lang.Class({
+var Settings = new Lang.Class({
     Name: 'Settings',
 
     _schemaName: "org.gnome.shell.extensions.backslide",

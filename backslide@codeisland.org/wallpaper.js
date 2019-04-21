@@ -31,7 +31,7 @@ const _ = Gettext.gettext;
  * This also includes jumping to next/previous wallpaper.
  * All Wallpaper-functionality is bundled in this class.
  */
-const Wallpaper = new Lang.Class({
+var Wallpaper = new Lang.Class({
     Name: "Wallpaper",
 
     _settings: {},
