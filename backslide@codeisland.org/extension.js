@@ -39,24 +39,23 @@ const _ = Gettext.gettext;
  */
 const BackSlideEntry = new Lang.Class({
     Name: 'BackSlideEntry',
-    Extends: PanelMenu.Button,
 
     _init: function(){
         // Attach to status-area:
-        this.parent(0.0, 'backslide');
+        this.button = new PanelMenu.Button(0.0, 'backslide');
         // Add the Icon:
-        this.actor.show();
+        this.button.actor.show();
         this._iconBox = new St.BoxLayout();
         this._iconIndicator = new St.Icon({
             icon_name: 'emblem-photos-symbolic',
             style_class: 'system-status-icon'
         });
         this._iconBox.add(this._iconIndicator);
-        this.actor.add_actor(this._iconBox);
-        this.actor.add_style_class_name('panel-status-button');
+        this.button.actor.add_actor(this._iconBox);
+        this.button.actor.add_style_class_name('panel-status-button');
 
         // Add the Widgets to the menu:
-        this.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")));
+        this.button.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")).item);
         let next_wallpaper = new Widget.NextWallpaperWidget();
         wallpaper_control.setPreviewCallback(function(path){
             try {
@@ -69,11 +68,11 @@ const BackSlideEntry = new Lang.Class({
                 wallpaper_control.removeInvalidWallpapers(path);
             }
         });
-        this.menu.addMenuItem(next_wallpaper);
+        this.button.menu.addMenuItem(next_wallpaper.item);
         let control = new Widget.WallpaperControlWidget();
         control.setOrderState(settings.isRandom());
-        this.menu.addMenuItem(control);
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this.button.menu.addMenuItem(control.item);
+        this.button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         let minutes = 0;
         let unit = _("minutes");
@@ -85,28 +84,28 @@ const BackSlideEntry = new Lang.Class({
         }
         let delay_slider_label = new Widget.LabelWidget(_("Delay (%d %s)").format(minutes, unit) );
 
-        this.menu.addMenuItem(delay_slider_label);
+        this.button.menu.addMenuItem(delay_slider_label.item);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
-        this.menu.addMenuItem(delay_slider);
-        this.menu.addMenuItem(new Widget.OpenPrefsWidget(this.menu));
+        this.button.menu.addMenuItem(delay_slider.item);
+        this.button.menu.addMenuItem(new Widget.OpenPrefsWidget(this.button.menu).item);
 
         // React on control-interaction:
         timer.setCallback(function(){
             wallpaper_control.next();
         });
-        control.connect("next-wallpaper", function(){
+        control.item.connect("next-wallpaper", function(){
             wallpaper_control.next();
             timer.restart();
         });
 
-        control.connect("timer-state-changed", function(source, state){
+        control.item.connect("timer-state-changed", function(source, state){
             if (state.name === Widget.START_TIMER_STATE){
                 timer.begin();
             } else if (state.name === Widget.STOP_TIMER_STATE){
                 timer.stop();
             }
         });
-        control.connect("order-state-changed", Lang.bind(this, function(source, state){
+        control.item.connect("order-state-changed", Lang.bind(this, function(source, state){
             if (state === true){
                 wallpaper_control.shuffle();
             } else {
@@ -158,7 +157,7 @@ let menu_entry;
  */
 function enable() {
     menu_entry = new BackSlideEntry();
-    Main.panel.addToStatusArea('backslide', menu_entry);
+    Main.panel.addToStatusArea('backslide', menu_entry.button);
     timer.begin();
 }
 
@@ -166,6 +165,6 @@ function enable() {
  * Called when the extension is deactivated (maybe multiple times)
  */
 function disable() {
-    menu_entry.destroy();
+    menu_entry.button.destroy();
     timer.stop();
 }

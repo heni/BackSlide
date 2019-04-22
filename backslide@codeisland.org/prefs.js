@@ -67,8 +67,7 @@ function addFileEntry(model, path){
                 model.set(iterator, [PIXBUF_COL,PATH_COL], [image, path]);
                 // There is data in the list, we're ready to store if necessary:
                 ready = true;
-            }, 0
-        );
+            });
     } catch (e){
         // Image could not be loaded. Invalid path.
         /*

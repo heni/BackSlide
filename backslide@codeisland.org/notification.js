@@ -41,7 +41,7 @@ const Notification = new Lang.Class({
      * @param body the body-text (larger).
      */
     notify: function(title, banner_text, body){
-        Main.messageTray.add(this._source);
+        Main.messageTray.add(this._source.source);
         let notification = new MessageTray.Notification(this._source, title, banner_text,
             {
                 body: body,
@@ -58,7 +58,6 @@ const Notification = new Lang.Class({
  */
 const SimpleSource = new Lang.Class({
     Name: "SimpleSource",
-    Extends: MessageTray.Source,
 
     /**
      * Create a new simple source for notifications.
@@ -67,7 +66,7 @@ const SimpleSource = new Lang.Class({
      * @private
      */
     _init: function(title, icon_name){
-        this.parent(title, icon_name);
+        this.source = new MessageTray.Source(title, icon_name);
         this._icon_name = icon_name;
     },
 

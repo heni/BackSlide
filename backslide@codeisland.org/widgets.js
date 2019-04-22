@@ -24,19 +24,21 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
-const Main = imports.ui.main;
+const Util = imports.misc.util;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Slider = imports.ui.slider;
 
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
+
+
+
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  * @type {Lang.Class}
  */
 const OpenPrefsWidget = new Lang.Class({
     Name: "OpenPrefsWidget",
-    Extends: PopupMenu.PopupBaseMenuItem,
 
     /**
      * Creates a new Button to open the prefs of this extension.
@@ -44,19 +46,19 @@ const OpenPrefsWidget = new Lang.Class({
      * @private
      */
     _init: function(menu){
-        this.parent();
+        this.item = new PopupMenu.PopupBaseMenuItem();
         this._menu = menu;
         // The Label:
         this._label = new St.Label({
             text: _("Manage Wallpapers")
         });
 
-        this.actor.add_child(this._label);
+        this.item.actor.add_child(this._label);
         this._label.span = -1;
         this._label.align = St.Align.MIDDLE;
 
         // Connect:
-        this.connect('activate', Lang.bind(this, this._onClick));
+        this.item.connect('activate', Lang.bind(this, this._onClick));
     },
 
     _onClick: function(){
@@ -69,7 +71,7 @@ const OpenPrefsWidget = new Lang.Class({
      *  with the given uuid.</p>
      */
     launchExtensionPrefs: function(uuid) {
-        Main.Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
+        Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
 });
 
@@ -81,22 +83,18 @@ const OpenPrefsWidget = new Lang.Class({
  */
 const NextWallpaperWidget = new Lang.Class({
     Name: "NextWallpaperWidget",
-    Extends: PopupMenu.PopupBaseMenuItem,
 
     _overlay_idle_id: 0,
 
     _init: function(){
-        this.parent({
-            reactive: false
-        });
-
+        this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Overall Box:
         this._box = new St.BoxLayout({
             vertical: true,
             height: 200
         });
 
-        this.actor.add_child(this._box)
+        this.item.actor.add_child(this._box)
         this._box.span = -1;
         this._box.align = St.Align.MIDDLE;
 
@@ -165,7 +163,7 @@ const NextWallpaperWidget = new Lang.Class({
         this._wallpaper = null;
 
         // Call the base-implementation:
-        PopupMenu.PopupBaseMenuItem.prototype.destroy.call(this);
+        PopupMenu.PopupBaseMenuItem.prototype.destroy.call(this.item);
     }
 });
 
@@ -185,7 +183,6 @@ const START_TIMER_STATE = "start";
  */
 const WallpaperControlWidget = new Lang.Class({
     Name: "WallpaperControlWidget",
-    Extends: PopupMenu.PopupBaseMenuItem,
 
     _order_button: {},
 
@@ -194,16 +191,14 @@ const WallpaperControlWidget = new Lang.Class({
      * @private
      */
     _init: function(){
-        this.parent({
-            reactive: false
-        });
+        this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Add the layout:
         this.box = new St.BoxLayout({
             style_class: 'controls', // Check the stylesheet.css file!
             style: 'padding-left: 47px;'
         });
 
-        this.actor.add(this.box, {
+        this.item.actor.add(this.box, {
           expand: true
         });
 
@@ -242,7 +237,7 @@ const WallpaperControlWidget = new Lang.Class({
      * @private
      */
     _orderStateChanged: function(state){
-        this.emit("order-state-changed", state);
+        this.item.emit("order-state-changed", state);
     },
 
     /**
@@ -250,7 +245,7 @@ const WallpaperControlWidget = new Lang.Class({
      * @private
      */
     _nextWallpaper: function(){
-        this.emit("next-wallpaper"); // Custom signal
+        this.item.emit("next-wallpaper"); // Custom signal
     },
 
     /**
@@ -259,7 +254,7 @@ const WallpaperControlWidget = new Lang.Class({
      * @private
      */
     _timerStateChanged: function(state){
-        this.emit("timer-state-changed", state);
+        this.item.emit("timer-state-changed", state);
     }
 
 });
@@ -487,10 +482,10 @@ const ControlToggleButton = new Lang.Class({
 // borrowed from: https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer
 const SliderItem = new Lang.Class({
     Name: 'SliderItem',
-    Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(value) {
-        this.parent();
+        this.item = new PopupMenu.PopupBaseMenuItem();
+
         var layout = new Clutter.TableLayout();
         this._box = new St.Widget({
 							style_class: 'slider-item',
@@ -499,7 +494,7 @@ const SliderItem = new Lang.Class({
         this._slider = new Slider.Slider(value);
 
         layout.pack(this._slider.actor, 2, 0);
-        this.actor.add(this._box, {span: -1, expand: true});
+        this.item.actor.add(this._box, {span: -1, expand: true});
     },
 
     setValue: function(value) {
@@ -587,18 +582,14 @@ const DelaySlider = new Lang.Class({
  */
 const LabelWidget = new Lang.Class({
     Name: "LabelWidget",
-    Extends: PopupMenu.PopupBaseMenuItem,
 
     _init: function(text){
-        this.parent({
-            reactive: false // Can't be focused/clicked.
-        });
-
+        this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         this._label = new St.Label({
             text: text
         });
 
-        this.actor.add_child(this._label);
+        this.item.actor.add_child(this._label);
     },
 
     /**
