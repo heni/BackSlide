@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Lukas Knuth
- * 
+ *
  * This file is part of Backslide.
  *
  * Backslide is free software: you can redistribute it and/or modify
@@ -69,7 +69,24 @@ const BackSlideEntry = new Lang.Class({
             }
         });
         this.button.menu.addMenuItem(next_wallpaper.item);
-        let control = new Widget.WallpaperControlWidget();
+        let control = new Widget.WallpaperControlWidget(function(){
+            wallpaper_control.next();
+            timer.restart();
+        },function(state){
+            if (state){
+                timer.begin();
+            } else {
+                timer.stop();
+            }
+        },function(state){
+            if (state === true){
+                wallpaper_control.shuffle();
+            } else {
+                wallpaper_control.order();
+            }
+            // Also write the new setting:
+            settings.setRandom(state);
+        });
         control.setOrderState(settings.isRandom());
         this.button.menu.addMenuItem(control.item);
         this.button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -93,30 +110,9 @@ const BackSlideEntry = new Lang.Class({
         timer.setCallback(function(){
             wallpaper_control.next();
         });
-        control.item.connect("next-wallpaper", function(){
-            wallpaper_control.next();
-            timer.restart();
-        });
-
-        control.item.connect("timer-state-changed", function(source, state){
-            if (state.name === Widget.START_TIMER_STATE){
-                timer.begin();
-            } else if (state.name === Widget.STOP_TIMER_STATE){
-                timer.stop();
-            }
-        });
-        control.item.connect("order-state-changed", Lang.bind(this, function(source, state){
-            if (state === true){
-                wallpaper_control.shuffle();
-            } else {
-                wallpaper_control.order();
-            }
-            // Also write the new setting:
-            settings.setRandom(state);
-        }));
 
         // React on delay-change:
-        delay_slider.connect('value-changed', function(){
+        let valueChanged = function(){
             let minutes = delay_slider.getMinutes();
 
             global.log('Extension Slider value-changed: returned minutes = ' + minutes);
@@ -131,7 +127,12 @@ const BackSlideEntry = new Lang.Class({
             delay_slider_label.setText(label_text);
 
             settings.setDelay(minutes);
-        });
+        };
+        try {
+          delay_slider.connect('value-changed', valueChanged);
+        } catch(e) {
+          delay_slider.connect('notify::value', valueChanged);
+        }
 
         // TODO Widgets react on external changes of settings
     }

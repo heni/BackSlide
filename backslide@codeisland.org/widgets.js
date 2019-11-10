@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Lukas Knuth
- * 
+ *
  * This file is part of Backslide.
  *
  * Backslide is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 const Lang = imports.lang;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
+const GObject = imports.gi.GObject;
 const Clutter = imports.gi.Clutter;
 const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
@@ -37,15 +38,15 @@ const _ = Gettext.gettext;
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  * @type {Lang.Class}
  */
-const OpenPrefsWidget = new Lang.Class({
-    Name: "OpenPrefsWidget",
+var OpenPrefsWidget = GObject.registerClass({},
+class OpenPrefsWidget extends GObject.Object {
 
     /**
      * Creates a new Button to open the prefs of this extension.
      * @param menu the menu to be toggled when the button is pressed.
      * @private
      */
-    _init: function(menu){
+    _init(menu){
         this.item = new PopupMenu.PopupBaseMenuItem();
         this._menu = menu;
         // The Label:
@@ -59,18 +60,18 @@ const OpenPrefsWidget = new Lang.Class({
 
         // Connect:
         this.item.connect('activate', Lang.bind(this, this._onClick));
-    },
+    }
 
-    _onClick: function(){
+    _onClick(){
         this.launchExtensionPrefs("backslide@codeisland.org");
         this._menu.toggle(); // Toggle the menu.
-    },
+    }
 
     /**
      * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
      *  with the given uuid.</p>
      */
-    launchExtensionPrefs: function(uuid) {
+    launchExtensionPrefs(uuid) {
         Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
 });
@@ -81,12 +82,11 @@ const OpenPrefsWidget = new Lang.Class({
  * Shows a preview of the next wallpaper to be set.
  * @type {Lang.Class}
  */
-const NextWallpaperWidget = new Lang.Class({
-    Name: "NextWallpaperWidget",
+var NextWallpaperWidget = GObject.registerClass({},
+class NextWallpaperWidget extends GObject.Object {
 
-    _overlay_idle_id: 0,
-
-    _init: function(){
+    _init(){
+        this._overlay_idle_id = 0;
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Overall Box:
         this._box = new St.BoxLayout({
@@ -144,20 +144,20 @@ const NextWallpaperWidget = new Lang.Class({
             box.anchor_y = 161;
             return false;
         });
-    },
+    }
 
     /**
      * Load the next image to be set as the wallpaper into the widget.
      * @param path the path to the image to preview.
      */
-    setNextWallpaper: function(path){
+    setNextWallpaper(path){
         if (this._texture.set_from_file(path) === false){
             // Couldn't load the image!
             throw "Image at '"+path+"' couldn't be found. It will be removed from the list...";
         }
-    },
+    }
 
-    destroy: function() {
+    destroy() {
         Mainloop.source_remove(this._overlay_idle_id);
         this._wallpaper.destroy();
         this._wallpaper = null;
@@ -181,16 +181,18 @@ const START_TIMER_STATE = "start";
  * </ul>
  * @type {Lang.Class}
  */
-const WallpaperControlWidget = new Lang.Class({
-    Name: "WallpaperControlWidget",
-
-    _order_button: {},
+var WallpaperControlWidget = GObject.registerClass({
+    Signals: { 'next-wallpaper': {},
+               'timer-state-changed': { param_types: [ GObject.TYPE_BOOLEAN ] },
+               'order-state-changed': { param_types: [ GObject.TYPE_BOOLEAN ] } }
+},
+class WallpaperControlWidget extends GObject.Object {
 
     /**
      * Creates a new control-widget.
      * @private
      */
-    _init: function(){
+    _init(nextWallpaper, timerStateChanged, orderStateChanged){
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Add the layout:
         this.box = new St.BoxLayout({
@@ -204,7 +206,7 @@ const WallpaperControlWidget = new Lang.Class({
 
         // Add the buttons:
         this._order_button = new ControlToggleButton(
-            "media-playlist-shuffle", Lang.bind(this, this._orderStateChanged)
+            "media-playlist-shuffle", orderStateChanged
         );
         this.box.add_actor(this._order_button.actor);
         let timer_button = new StateControlButton(
@@ -216,45 +218,53 @@ const WallpaperControlWidget = new Lang.Class({
                     name: START_TIMER_STATE,
                     icon: "media-playback-start"
                 }
-            ], Lang.bind(this, this._timerStateChanged)
+            ], function(state) {
+              timerStateChanged(state.name === START_TIMER_STATE);
+            }
         );
         timer_button.setState(STOP_TIMER_STATE);
         this.box.add_actor(timer_button.actor);
-        this.box.add_actor(new ControlButton("media-skip-forward", Lang.bind(this, this._nextWallpaper)).actor );
-    },
+        let skipButton = new ControlButton("media-skip-forward");
+        let self = this;
+        skipButton.actor.connect('clicked', function() {
+          nextWallpaper();
+        });
+        this.box.add_actor(skipButton.actor);
+    }
 
     /**
      * Set the state of the order-button.
      * @param isRandom whether the wallpaper-order is random or not.
      */
-    setOrderState: function(isRandom){
+    setOrderState(isRandom){
         this._order_button.setState(isRandom);
-    },
+    }
 
     /**
      * Emits the "order-state-changed"-signal, to be caught upstream.
      * @param state the state of the wallpaper-order.
      * @private
      */
-    _orderStateChanged: function(state){
-        this.item.emit("order-state-changed", state);
-    },
+    _orderStateChanged(state){
+        this.emit("order-state-changed", state);
+    }
 
     /**
      * Emits the "next-wallpaper"-signal, to be caught upstream.
      * @private
      */
-    _nextWallpaper: function(){
-        this.item.emit("next-wallpaper"); // Custom signal
-    },
+    _nextWallpaper(){
+        global.log("_nextWallpaper this ");
+        this.emit("next-wallpaper"); // Custom signal
+    }
 
     /**
      * Emits the "timer-state-changed"-signal, to be caught upstream.
      * @param state the state of the widget. See STOP_WIDGET_TIMER_STATE and START_WIDGET_TIMER_STATE
      * @private
      */
-    _timerStateChanged: function(state){
-        this.item.emit("timer-state-changed", state);
+    _timerStateChanged(state){
+        this.emit("timer-state-changed", );
     }
 
 });
@@ -263,17 +273,16 @@ const WallpaperControlWidget = new Lang.Class({
  * A simple button, styled to be used inside the "WallpaperControlWidget".
  * @type {Lang.Class}
  */
-const ControlButton = new Lang.Class({
-    Name: 'ControlButton',
-    actor: {},
+var ControlButton = GObject.registerClass({},
+class ControlButton extends GObject.Object {
 
     /**
      * Creates a new button for use inside "WallpaperControlWidget"
      * @param icon the name of the icon, see http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
      * @param callback the callback for the "click"-event.
-     * @private
+     * @private`
      */
-    _init: function(icon, callback){
+    _init(icon, callback){
         this.icon = new St.Icon({
             icon_name: icon + "-symbolic", // Get the symbol-icons.
             icon_size: 20
@@ -285,17 +294,13 @@ const ControlButton = new Lang.Class({
         });
         this.icon.set_style('padding: 0px');
         this.actor.set_style('padding: 8px'); // Put less space between buttons
-
-        if (callback != undefined || callback != null){
-            this.actor.connect('clicked', callback);
-        }
-    },
+    }
 
     /**
      * Set this buttons icon to the given icon-name.
      * @param icon the icon-name.
      */
-    setIcon: function(icon){
+    setIcon(icon){
         this.icon.icon_name = icon+'-symbolic';
     }
 });
@@ -306,14 +311,8 @@ const ControlButton = new Lang.Class({
  *  a parameter, indicating the current (new) state.
  * @type {Lang.Class}
  */
-const StateControlButton = new Lang.Class({
-    Name: "StateControlButton",
-    actor: {},
-
-    _state_index: 0,
-    _states: [],
-    _callback: null,
-    _locked: false,
+var StateControlButton = GObject.registerClass({},
+class StateControlButton extends GObject.Object {
 
     /**
      * <p>Create a new, stateful button for use inside "WallpaperControlWidget"</p>
@@ -330,7 +329,11 @@ const StateControlButton = new Lang.Class({
      * @param callback the callback-function for the "click"-signal.
      * @private
      */
-    _init: function(states, callback){
+    _init(states, callback){
+       this._state_index = 0;
+       this._states = [];
+       this._callback = null;
+       this._locked = false;
         // Validate:
         if (states.length < 2){
             throw RangeError("The 'states'-array should contain 2 or more elements.");
@@ -360,14 +363,14 @@ const StateControlButton = new Lang.Class({
             this._callback = callback;
         }
         this.actor.connect('clicked', Lang.bind(this, this._clicked));
-    },
+    }
 
     /**
      * Called when the stateful button is clicked.
      * FOR INTERNAL USE ONLY!
      * @private
      */
-    _clicked: function(){
+    _clicked(){
         // Call-Back:
         if (this._callback !== null){
             this._locked = true;
@@ -382,13 +385,13 @@ const StateControlButton = new Lang.Class({
         }
         // change Icon.
         this.setIcon( this._states[this._state_index].icon );
-    },
+    }
 
     /**
      * Set the state of this button. This will NOT trigger the callback function!
      * @param state the state-name of the button.
      */
-    setState: function(state){
+    setState(state){
         if (state === this._states[this._state_index]){
             return; // It's already this state.
         }
@@ -401,13 +404,13 @@ const StateControlButton = new Lang.Class({
                 this.setIcon(this._states[i].icon);
             }
         }
-    },
+    }
 
     /**
      * Set this buttons icon to the given icon-name.
      * @param icon the icon-name.
      */
-    setIcon: function(icon){
+    setIcon(icon){
         this.icon.icon_name = icon+'-symbolic';
     }
 
@@ -417,11 +420,9 @@ const StateControlButton = new Lang.Class({
  * A "ControlButton" which can be active or inactive. To be used in "WallpaperControlWidget".
  * @type {Lang.Class}
  */
-const ControlToggleButton = new Lang.Class({
-    Name: 'ControlToggleButton',
-    actor: {},
+var ControlToggleButton = GObject.registerClass({},
+class ControlToggleButton extends GObject.Object {
 
-    _callback: {},
 
     /**
      * Create a new toggle button.
@@ -430,7 +431,7 @@ const ControlToggleButton = new Lang.Class({
      *  the new state of the button.
      * @private
      */
-    _init: function(icon, callback){
+    _init(icon, callback){
         this.icon = new St.Icon({
             icon_name: icon + "-symbolic", // Get the symbol-icons.
             icon_size: 20
@@ -448,9 +449,9 @@ const ControlToggleButton = new Lang.Class({
             this._callback = callback;
         }
         this.actor.connect('clicked', Lang.bind(this, this._onToggle));
-    },
+    }
 
-    _onToggle: function(){
+    _onToggle(){
         // Glow the image:
         if (this.actor.checked){
             this.actor.style_class = 'notification-icon-button';
@@ -461,13 +462,13 @@ const ControlToggleButton = new Lang.Class({
         if (this._callback !== null){
             this._callback(this.actor.checked);
         }
-    },
+    }
 
     /**
      * Set the state of the button (without triggering the callback).
      * @param on whether the button is toggled on or not.
      */
-    setState: function(on){
+    setState(on){
         if (typeof on === "boolean"){
             this.actor.checked = on;
             if (on){
@@ -480,10 +481,10 @@ const ControlToggleButton = new Lang.Class({
 // -------------------------------------------------------------------------------
 
 // borrowed from: https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer
-const SliderItem = new Lang.Class({
-    Name: 'SliderItem',
+var SliderItem = GObject.registerClass({},
+class SliderItem extends GObject.Object {
 
-    _init: function(value) {
+    _init(value) {
         this.item = new PopupMenu.PopupBaseMenuItem();
 
         var layout = new Clutter.TableLayout();
@@ -495,21 +496,24 @@ const SliderItem = new Lang.Class({
 
         layout.pack(this._slider.actor, 2, 0);
         this.item.actor.add(this._box, {span: -1, expand: true});
-    },
+    }
 
-    setValue: function(value) {
-        this._slider.setValue(value);
-    },
+    setValue(value) {
+        if (this._slider.setValue)
+          this._slider.setValue(value);
+        else
+          this._slider.value = value;
+    }
 
-    getValue: function() {
+    getValue() {
         return this._slider._getCurrentValue();
-    },
+    }
 
-    setIcon: function(icon) {
+    setIcon(icon) {
         this._icon.icon_name = icon + '-symbolic';
-    },
+    }
 
-    connect: function(signal, callback) {
+    connect(signal, callback) {
         this._slider.connect(signal, callback);
     }
 });
@@ -519,29 +523,29 @@ const SliderItem = new Lang.Class({
  * Widget for setting the delay for the next Wallpaper-change.
  * @type {Lang.Class}
  */
-const DelaySlider = new Lang.Class({
-    Name: 'DelaySlider',
-    Extends: SliderItem,
 
-    _MINUTES_MAX: 59,
-    _MINUTES_MIN: 5,
-    _HOURS_MAX: 48,
-    _HOURS_MIN: 1,
+
+var DelaySlider = GObject.registerClass({},
+class DelaySlider extends SliderItem {
 
     /**
      * Construct a new Widget.
      * @private
      */
-    _init: function(minutes){
-        this.parent(0, ''); // value MUST be specified!
+    _init(minutes){
+        super._init(0); // value MUST be specified!
+        this._MINUTES_MAX = 59;
+        this._MINUTES_MIN = 5;
+        this._HOURS_MAX = 48;
+        this._HOURS_MIN = 1;
         this.setMinutes(minutes); // Set the real value.
-    },
+    }
 
     /**
      * Set the value of the slider to x minutes.
      * @param minutes the value in minutes between _MINUTES_MAX and _MINUTES_MIN
      */
-    setMinutes: function(minutes){
+    setMinutes(minutes){
         // Validate:
         if (isNaN(minutes) || minutes < this._MINUTES_MIN || minutes > this._HOURS_MAX*60){
             throw TypeError("'minutes' should be an integer between "
@@ -556,13 +560,13 @@ const DelaySlider = new Lang.Class({
         }
 
         this.setValue(value);
-    },
+    }
 
     /**
      * Get the value in minutes from the slider.
      * @return int the value in minutes.
      */
-    getMinutes: function(){
+    getMinutes(){
         let minutes = 0;
         if (this.getValue() < 0.5) {
             minutes = this._MINUTES_MIN + (this.getValue() * 2) * (this._MINUTES_MAX - this._MINUTES_MIN);
@@ -580,23 +584,23 @@ const DelaySlider = new Lang.Class({
  * A simple label which only displays the given text.
  * @type {Lang.Class}
  */
-const LabelWidget = new Lang.Class({
-    Name: "LabelWidget",
+var LabelWidget = GObject.registerClass({},
+class LabelWidget extends GObject.Object {
 
-    _init: function(text){
+    _init(text){
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         this._label = new St.Label({
             text: text
         });
 
         this.item.actor.add_child(this._label);
-    },
+    }
 
     /**
      * Set the text for this label.
      * @param text the new text.
      */
-    setText: function(text){
+    setText(text){
         this._label.text = text;
     }
 });
