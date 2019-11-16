@@ -25,7 +25,7 @@ const Main = imports.ui.main;
  * A simple to use class for showing notifications.
  * @type {Lang.Class}
  */
-const Notification = new Lang.Class({
+var Notification = new Lang.Class({
     Name: "Notification",
 
     _source: {},

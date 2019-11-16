@@ -20,11 +20,21 @@ const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
-const KEY_DELAY = "delay";
-const KEY_RANDOM = "random";
-const KEY_IMAGE_LIST = "image-list";
-const KEY_WALLPAPER = "picture-uri";
-const KEY_ELAPSED_TIME = "elapsed-time";
+var KEY_DELAY = "delay";
+var KEY_RANDOM = "random";
+var KEY_IMAGE_LIST = "image-list";
+var KEY_WALLPAPER = "picture-uri";
+var KEY_ELAPSED_TIME = "elapsed-time";
+
+var DELAY_MINUTES_MIN = 1;
+var DELAY_MINUTES_DEFAULT = 5;
+var DELAY_HOURS_MAX = 48;
+var DELAY_MINUTES_MAX = DELAY_HOURS_MAX * 60;
+
+var valid_minutes = function(minutes) {
+    return minutes >= DELAY_MINUTES_MIN && minutes <= DELAY_MINUTES_MAX;
+}
+
 /**
  * This class takes care of reading/writing the settings from/to the GSettings backend.
  * @type {Lang.Class}
@@ -62,6 +72,12 @@ var Settings = new Lang.Class({
         this._screensaver_setting = new Gio.Settings({
             schema: "org.gnome.desktop.screensaver"
         });
+        this.bindKey(KEY_DELAY, Lang.bind(this, function(value){
+            var minutes = value.get_int32();
+            if (!valid_minutes(minutes)) {
+                this.setDelay(DELAY_MINUTES_DEFAULT);
+            }
+        }));
     },
 
     /**
@@ -94,7 +110,12 @@ var Settings = new Lang.Class({
      * @returns int the delay in minutes.
      */
     getDelay: function(){
-        return this._setting.get_int(KEY_DELAY);
+        var minutes = this._setting.get_int(KEY_DELAY);
+        if (!valid_minutes(minutes)) {
+                this.setDelay(DELAY_MINUTES_DEFAULT);
+                return DELAY_MINUTES_DEFAULT;
+        }
+        return minutes;
     },
 
     /**
@@ -104,11 +125,12 @@ var Settings = new Lang.Class({
      */
     setDelay: function(delay){
         // Validate:
-        if (delay === undefined || delay === null || typeof delay !== "number" || delay <= 1){
-            throw TypeError("delay should be a number, greater than 1. Got: "+delay);
+        if (delay === undefined || delay === null || typeof delay !== "number" || !valid_minutes(delay)){
+            throw TypeError("delay should be a number, in range [" + DELAY_MINUTES_MIN + ", " + DELAY_MINUTES_MAX + "]. Got: "+delay);
         }
         // Set:
         let key = KEY_DELAY;
+        if (this._setting.get_int(key) == delay) { return; }
         if (this._setting.is_writable(key)){
             if (this._setting.set_int(key, delay)){
                 Gio.Settings.sync();

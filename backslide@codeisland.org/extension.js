@@ -134,7 +134,12 @@ const BackSlideEntry = new Lang.Class({
           delay_slider.connect('notify::value', valueChanged);
         }
 
-        // TODO Widgets react on external changes of settings
+        settings.bindKey(Pref.KEY_DELAY, Lang.bind(this, function(value){
+            var minutes = value.get_int32();
+            if (Pref.valid_minutes(minutes)) {
+                delay_slider.setMinutes(minutes);
+            }
+        }));
     }
 });
 
