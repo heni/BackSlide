@@ -25,6 +25,7 @@ var KEY_RANDOM = "random";
 var KEY_IMAGE_LIST = "image-list";
 var KEY_WALLPAPER = "picture-uri";
 var KEY_ELAPSED_TIME = "elapsed-time";
+var KEY_CHANGE_LOCKSCREEN = "change-lockscreen";
 
 var DELAY_MINUTES_MIN = 1;
 var DELAY_MINUTES_DEFAULT = 5;
@@ -236,13 +237,15 @@ var Settings = new Lang.Class({
         } else {
             throw this._errorWritable(key);
         }
-        if (this._screensaver_setting.is_writable(key)){
-            // Set a new Screensaver-Image:
-            if (!this._screensaver_setting.set_string(key, "file://"+path) ){
-                throw this._errorSet(key);
+        if (this.getChangeLockscreen()){
+            if (this._screensaver_setting.is_writable(key)){
+                // Set a new Screensaver-Image:
+                if (!this._screensaver_setting.set_string(key, "file://"+path) ){
+                    throw this._errorSet(key);
+                }
+            } else {
+                throw this._errorWritable(key);
             }
-        } else {
-            throw this._errorWritable(key);
         }
         Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
     },
@@ -277,6 +280,9 @@ var Settings = new Lang.Class({
         }
     },
 
+    getChangeLockscreen : function(){
+        return this._setting.get_boolean(KEY_CHANGE_LOCKSCREEN);
+    },
     _errorWritable: function(key){
         return "The key '"+key+"' is not writable.";
     },

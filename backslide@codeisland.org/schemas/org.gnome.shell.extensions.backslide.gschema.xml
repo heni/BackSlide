@@ -23,5 +23,10 @@
             <summary>Minutes elapsed from the last delay.</summary>
             <description>The minutes already elapsed from the last delay-interval.</description>
         </key>
+        <key name="change-lockscreen" type="b">
+            <default>true</default>
+            <summary>Whether to change the lockscreen wallpaper or not.</summary>
+            <description>If set to true, the lockscreen wallpaper will be changed.</description>
+        </key>
     </schema>
 </schemalist>
