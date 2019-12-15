@@ -44,11 +44,11 @@ const Pref = Me.imports.settings;
  * </ul>
  * @type {Lang.Class}
  */
-const Timer = new Lang.Class({
+var Timer = new Lang.Class({
     Name: "Timer",
 
     _settings: {},
-    _delay: 20,
+    _delay: Pref.DELAY_MINUTES_DEFAULT,
     _interval_id: null,
     _callback: null,
 
@@ -67,8 +67,11 @@ const Timer = new Lang.Class({
         this._elapsed_minutes = this._settings.getElapsedTime();
         // Listen to changes and restart with new delay.
         this._settings.bindKey(Pref.KEY_DELAY, Lang.bind(this, function(value){
-            this._delay = value.get_int32();
-            this.restart();
+            var minutes = value.get_int32();
+            if (Pref.valid_minutes(minutes)){
+                this._delay = minutes;
+                this.restart();
+            }
         }));
     },
 
@@ -100,8 +103,8 @@ const Timer = new Lang.Class({
             */
             this._elapsed_minutes = 0;
         }
-        this._interval_id = GLib.timeout_add(
-            GLib.PRIORITY_DEFAULT, (this._delay-this._elapsed_minutes)*60000, Lang.bind(this, this._callbackInternal)
+        this._interval_id = GLib.timeout_add_seconds(
+            GLib.PRIORITY_DEFAULT, (this._delay-this._elapsed_minutes)*60, Lang.bind(this, this._callbackInternal)
         );
     },
 

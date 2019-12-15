@@ -32,7 +32,7 @@ const Slider = imports.ui.slider;
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
 
-
+const Pref = Me.imports.settings;
 
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
@@ -535,8 +535,8 @@ class DelaySlider extends SliderItem {
     _init(minutes){
         super._init(0); // value MUST be specified!
         this._MINUTES_MAX = 59;
-        this._MINUTES_MIN = 5;
-        this._HOURS_MAX = 48;
+        this._MINUTES_MIN = Pref.DELAY_MINUTES_MIN;
+        this._HOURS_MAX = Pref.DELAY_HOURS_MAX;
         this._HOURS_MIN = 1;
         this.setMinutes(minutes); // Set the real value.
     }
@@ -547,7 +547,7 @@ class DelaySlider extends SliderItem {
      */
     setMinutes(minutes){
         // Validate:
-        if (isNaN(minutes) || minutes < this._MINUTES_MIN || minutes > this._HOURS_MAX*60){
+        if (isNaN(minutes) || !Pref.valid_minutes(minutes)){
             throw TypeError("'minutes' should be an integer between "
                 +this._MINUTES_MIN+" and "+this._HOURS_MAX*60);
         }
