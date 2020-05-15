@@ -23,8 +23,9 @@ const Lang = imports.lang;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const GObject = imports.gi.GObject;
+const Cogl = imports.gi.Cogl;
+const Pixbuf = imports.gi.GdkPixbuf;
 const Clutter = imports.gi.Clutter;
-const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Slider = imports.ui.slider;
@@ -54,7 +55,9 @@ class OpenPrefsWidget extends GObject.Object {
             text: _("Manage Wallpapers")
         });
 
-        this.item.actor.add_child(this._label);
+        this.item.add_child(this._label, {
+            expand: true
+        });
         this._label.span = -1;
         this._label.align = St.Align.MIDDLE;
 
@@ -86,26 +89,45 @@ var NextWallpaperWidget = GObject.registerClass({},
 class NextWallpaperWidget extends GObject.Object {
 
     _init(){
+        let placeholder_pxbuf = null;
         this._overlay_idle_id = 0;
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Overall Box:
         this._box = new St.BoxLayout({
             vertical: true,
-            height: 200
         });
 
-        this.item.actor.add_child(this._box)
+        this.item.add_child(this._box)
         this._box.span = -1;
         this._box.align = St.Align.MIDDLE;
 
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
+        
         if (screen_image.query_exists(null)){
-            // If the theme-independent image is there, use it...
-            this._icon = new Clutter.Texture({
-                filter_quality: Clutter.TextureQuality.HIGH
-            });
-            this._icon.set_from_file(screen_image.get_path());
+            global.log("CONDITION MET,  screen path is " + screen_image.get_path());
+            this._icon = new Clutter.Actor();
+            
+            this._img = new Clutter.Image();
+            // this.cl_actor.set_content(this._icon);
+            // this._icon.set_content_scaling_filters(this._icon.ClutterScalingFilter.CLUTTER_SCALING_FILTER_LINEAR,
+            //      this._icon.ClutterScalingFilter.CLUTTER_SCALING_FILTER_LINEAR);
+            this.initial_pixbuf = Pixbuf.Pixbuf.new_from_file(screen_image.get_path());
+            this.icon_pixbuf = this.initial_pixbuf.scale_simple(178,106, Pixbuf.InterpType.BILINEAR);
+            let icon_img = new Clutter.Image();
+            icon_img.set_data(this.initial_pixbuf.get_pixels(),
+                this.initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                : Cogl.PixelFormat.RGB_888,
+                this.initial_pixbuf.get_width(),
+                this.initial_pixbuf.get_height(),
+                this.initial_pixbuf.get_rowstride());
+            this._img.set_data(this.initial_pixbuf.get_pixels(),
+                this.initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                : Cogl.PixelFormat.RGB_888,
+                this.initial_pixbuf.get_width(),
+                this.initial_pixbuf.get_height(),
+                this.initial_pixbuf.get_rowstride());
+            this._icon.set_content(icon_img);
         } else {
             // ... otherwise, fall back on the theme-image. Might look ugly, see Issue #10
             this._icon = new St.Icon({
@@ -117,48 +139,72 @@ class NextWallpaperWidget extends GObject.Object {
             }
         }
 
+        
 
         this._icon_bin = new St.Bin({
-            child: this._icon,
-            y_fill: false,  // The icon has much space on top/bottom,
-            height: 180     //  therefor, crop it.
+            child: this._icon, // The icon has much space on top/bottom,
+            height: 170,
+            y_fill: true,
+            x_fill: true,
+            width: 250 //  therefor, crop it.
         });
         this._box.add(this._icon_bin);
         // The next Wallpaper ("in" the screen):
+        // The texture for the wallpapers:
+        if(this.initial_pixbuf){
+            placeholder_pxbuf = this.initial_pixbuf.scale_simple(this.initial_pixbuf.get_width(),this.initial_pixbuf.get_height(), Pixbuf.InterpType.BILINEAR);
+        }else{
+            placeholder_pxbuf = new Pixbuf.Pixbuf();
+        }
+        let new_img = new Clutter.Image();
+        new_img.set_data(placeholder_pxbuf.get_pixels(),
+                placeholder_pxbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                : Cogl.PixelFormat.RGB_888,
+                placeholder_pxbuf.get_width(),
+                placeholder_pxbuf.get_height(),
+                placeholder_pxbuf.get_rowstride());
+        this._texture = new Clutter.Actor({
+            content: new_img
+        });
+
         this._wallpaper = new St.Bin({
             style_class: "overlay"
         });
-        this._box.add(this._wallpaper);
-        // The texture for the wallpapers:
-        this._texture = new Clutter.Texture({
-            filter_quality: Clutter.TextureQuality.HIGH,
-            width: 178,
-            height: 106
-        });
         this._wallpaper.set_child(this._texture);
+        this._box.add(this._wallpaper);
 
-        // Do the trick for overlapping:
-        // See https://mail.gnome.org/archives/gnome-shell-list/2012-August/msg00077.html
-        let box = this._wallpaper;
-        this._overlay_idle_id = Mainloop.idle_add(function () {
-            box.anchor_y = 161;
-            return false;
-        });
+        
     }
+
 
     /**
      * Load the next image to be set as the wallpaper into the widget.
      * @param path the path to the image to preview.
      */
     setNextWallpaper(path){
-        if (this._texture.set_from_file(path) === false){
-            // Couldn't load the image!
+        let pixbuf = Pixbuf.Pixbuf.new_from_file(path);
+        global.log('pixbuf is'+pixbuf)
+        pixbuf = pixbuf.scale_simple(178,106, Pixbuf.InterpType.BILINEAR);
+        let new_img = new Clutter.Image();
+        let isSet = new_img.set_data(pixbuf.get_pixels(),
+            pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                            : Cogl.PixelFormat.RGB_888,
+            pixbuf.get_width(),
+            pixbuf.get_height(),
+            pixbuf.get_rowstride());
+
+        if (isSet === false){
             throw "Image at '"+path+"' couldn't be found. It will be removed from the list...";
+        }else{
+            this._texture.set_content(new_img);
+            this._wallpaper.set_child(this._texture);
+            this._icon.set_content(new_img);
+            
+
         }
     }
 
     destroy() {
-        Mainloop.source_remove(this._overlay_idle_id);
         this._wallpaper.destroy();
         this._wallpaper = null;
 
@@ -172,7 +218,7 @@ class NextWallpaperWidget extends GObject.Object {
 const STOP_TIMER_STATE = "stop";
 const START_TIMER_STATE = "start";
 /**
- * The whole widget including the loop/random, pause/play and next buttons.
+ * The whole widget including the loop/random, pause/play anSd next buttons.
  * This widget will emit multiple signals to be handled in a central place:
  * <ul>
  *     <li>"next-wallpaper" -> Emitted, when the next-button was pressed.</li>
@@ -196,11 +242,10 @@ class WallpaperControlWidget extends GObject.Object {
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Add the layout:
         this.box = new St.BoxLayout({
-            style_class: 'controls', // Check the stylesheet.css file!
-            style: 'padding-left: 47px;'
+            style_class: 'controls'
         });
 
-        this.item.actor.add(this.box, {
+        this.item.add(this.box, {
           expand: true
         });
 
@@ -487,14 +532,13 @@ class SliderItem extends GObject.Object {
     _init(value) {
         this.item = new PopupMenu.PopupBaseMenuItem();
 
-        var layout = new Clutter.TableLayout();
+        var layout = new Clutter.GridLayout();
         this._box = new St.Widget({
 							style_class: 'slider-item',
 							layout_manager: layout});
 
         this._slider = new Slider.Slider(value);
-
-        layout.pack(this._slider.actor, 2, 0);
+        layout.attach(this._slider, 2, 0, 1, 1);
         this.item.actor.add(this._box, {span: -1, expand: true});
     }
 
@@ -593,7 +637,7 @@ class LabelWidget extends GObject.Object {
             text: text
         });
 
-        this.item.actor.add_child(this._label);
+        this.item.add_child(this._label);
     }
 
     /**
