@@ -55,9 +55,7 @@ class OpenPrefsWidget extends GObject.Object {
             text: _("Manage Wallpapers")
         });
 
-        this.item.add_child(this._label, {
-            expand: true
-        });
+        this.item.add_child(this._label);
         this._label.span = -1;
         this._label.align = St.Align.MIDDLE;
 
