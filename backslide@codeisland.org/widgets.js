@@ -171,7 +171,7 @@ class NextWallpaperWidget extends GObject.Object {
 const STOP_TIMER_STATE = "stop";
 const START_TIMER_STATE = "start";
 /**
- * The whole widget including the loop/random, pause/play anSd next buttons.
+ * The whole widget including the loop/random, pause/play and next buttons.
  * This widget will emit multiple signals to be handled in a central place:
  * <ul>
  *     <li>"next-wallpaper" -> Emitted, when the next-button was pressed.</li>

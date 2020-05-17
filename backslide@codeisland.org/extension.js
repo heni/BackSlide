@@ -65,7 +65,6 @@ const BackSlideEntry = new Lang.Class({
                  The wallpaper could not be loaded (either not existent or not an image). Therefor,
                  remove particularly it from the image-list.
                 */
-               global.log(e);
                 wallpaper_control.removeInvalidWallpapers(path);
             }
         });
