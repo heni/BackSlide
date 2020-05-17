@@ -87,8 +87,8 @@ var NextWallpaperWidget = GObject.registerClass({},
 class NextWallpaperWidget extends GObject.Object {
 
     _init(){
-        let placeholder_pxbuf = null;
-        this._overlay_idle_id = 0;
+        this._icon = new Clutter.Actor()
+        this._img = new Clutter.Image();
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Overall Box:
         this._box = new St.BoxLayout({
@@ -102,67 +102,24 @@ class NextWallpaperWidget extends GObject.Object {
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
         
-        if (screen_image.query_exists(null)){
-            global.log("CONDITION MET,  screen path is " + screen_image.get_path());
-            this._icon = new Clutter.Actor();
-            
-            this._img = new Clutter.Image();
-            // this.cl_actor.set_content(this._icon);
-            // this._icon.set_content_scaling_filters(this._icon.ClutterScalingFilter.CLUTTER_SCALING_FILTER_LINEAR,
-            //      this._icon.ClutterScalingFilter.CLUTTER_SCALING_FILTER_LINEAR);
-            this.initial_pixbuf = Pixbuf.Pixbuf.new_from_file(screen_image.get_path());
-            this.icon_pixbuf = this.initial_pixbuf.scale_simple(178,106, Pixbuf.InterpType.BILINEAR);
-            let icon_img = new Clutter.Image();
-            icon_img.set_data(this.initial_pixbuf.get_pixels(),
-                this.initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
-                                : Cogl.PixelFormat.RGB_888,
-                this.initial_pixbuf.get_width(),
-                this.initial_pixbuf.get_height(),
-                this.initial_pixbuf.get_rowstride());
-            this._img.set_data(this.initial_pixbuf.get_pixels(),
-                this.initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
-                                : Cogl.PixelFormat.RGB_888,
-                this.initial_pixbuf.get_width(),
-                this.initial_pixbuf.get_height(),
-                this.initial_pixbuf.get_rowstride());
-            this._icon.set_content(icon_img);
-        } else {
-            // ... otherwise, fall back on the theme-image. Might look ugly, see Issue #10
-            this._icon = new St.Icon({
-                icon_name: "video-display",
-                icon_size: 220
-            });
-            if (St.IconType !== undefined){
-                this._icon.icon_type = St.IconType.FULLCOLOR; // Backwards compatibility with 3.4
-            }
-        }
+        let initial_pixbuf = Pixbuf.Pixbuf.new_from_file(screen_image.get_path());
 
-        
+        this._img.set_data(initial_pixbuf.get_pixels(),
+                initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                : Cogl.PixelFormat.RGB_888,
+                initial_pixbuf.get_width(),
+                initial_pixbuf.get_height(),
+                initial_pixbuf.get_rowstride());
+        this._icon.set_content(this._img);
+        this._icon.set_size(240,140);
 
         this._icon_bin = new St.Bin({
             child: this._icon, // The icon has much space on top/bottom,
-            height: 170,
-            y_fill: true,
-            x_fill: true,
-            width: 250 //  therefor, crop it.
         });
         this._box.add(this._icon_bin);
-        // The next Wallpaper ("in" the screen):
-        // The texture for the wallpapers:
-        if(this.initial_pixbuf){
-            placeholder_pxbuf = this.initial_pixbuf.scale_simple(this.initial_pixbuf.get_width(),this.initial_pixbuf.get_height(), Pixbuf.InterpType.BILINEAR);
-        }else{
-            placeholder_pxbuf = new Pixbuf.Pixbuf();
-        }
-        let new_img = new Clutter.Image();
-        new_img.set_data(placeholder_pxbuf.get_pixels(),
-                placeholder_pxbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
-                                : Cogl.PixelFormat.RGB_888,
-                placeholder_pxbuf.get_width(),
-                placeholder_pxbuf.get_height(),
-                placeholder_pxbuf.get_rowstride());
+
         this._texture = new Clutter.Actor({
-            content: new_img
+            content: this._img
         });
 
         this._wallpaper = new St.Bin({
@@ -181,8 +138,6 @@ class NextWallpaperWidget extends GObject.Object {
      */
     setNextWallpaper(path){
         let pixbuf = Pixbuf.Pixbuf.new_from_file(path);
-        global.log('pixbuf is'+pixbuf)
-        pixbuf = pixbuf.scale_simple(178,106, Pixbuf.InterpType.BILINEAR);
         let new_img = new Clutter.Image();
         let isSet = new_img.set_data(pixbuf.get_pixels(),
             pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
