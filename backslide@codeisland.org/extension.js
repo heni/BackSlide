@@ -43,16 +43,16 @@ const BackSlideEntry = new Lang.Class({
     _init: function(){
         // Attach to status-area:
         this.button = new PanelMenu.Button(0.0, 'backslide');
-        // Add the Icon:
-        this.button.actor.show();
+        // Add the Icon
+        this.button.show();
         this._iconBox = new St.BoxLayout();
         this._iconIndicator = new St.Icon({
             icon_name: 'emblem-photos-symbolic',
             style_class: 'system-status-icon'
         });
         this._iconBox.add(this._iconIndicator);
-        this.button.actor.add_actor(this._iconBox);
-        this.button.actor.add_style_class_name('panel-status-button');
+        this.button.add_actor(this._iconBox);
+        this.button.add_style_class_name('panel-status-button');
 
         // Add the Widgets to the menu:
         this.button.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")).item);
