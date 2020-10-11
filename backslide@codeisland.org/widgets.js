@@ -101,7 +101,7 @@ class NextWallpaperWidget extends GObject.Object {
 
         // The computer-picture:
         let screen_image = Me.dir.get_child('img').get_child("screen.png");
-        
+
         let initial_pixbuf = Pixbuf.Pixbuf.new_from_file(screen_image.get_path());
 
         this._img.set_data(initial_pixbuf.get_pixels(),
@@ -128,7 +128,7 @@ class NextWallpaperWidget extends GObject.Object {
         this._wallpaper.set_child(this._texture);
         this._box.add(this._wallpaper);
 
-        
+
     }
 
 
@@ -152,7 +152,7 @@ class NextWallpaperWidget extends GObject.Object {
             this._texture.set_content(new_img);
             this._wallpaper.set_child(this._texture);
             this._icon.set_content(new_img);
-            
+
 
         }
     }
@@ -195,12 +195,12 @@ class WallpaperControlWidget extends GObject.Object {
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Add the layout:
         this.box = new St.BoxLayout({
-            style_class: 'controls'
+            style_class: 'controls',
+            x_expand: true,
+            y_expand: true
         });
 
-        this.item.add(this.box, {
-          expand: true
-        });
+        this.item.add(this.box);
 
         // Add the buttons:
         this._order_button = new ControlToggleButton(
@@ -488,11 +488,14 @@ class SliderItem extends GObject.Object {
         var layout = new Clutter.GridLayout();
         this._box = new St.Widget({
 							style_class: 'slider-item',
-							layout_manager: layout});
+							layout_manager: layout,
+              x_expand: true,
+              y_expand: true
+        });
 
         this._slider = new Slider.Slider(value);
         layout.attach(this._slider, 2, 0, 1, 1);
-        this.item.actor.add(this._box, {span: -1, expand: true});
+        this.item.actor.add(this._box);
     }
 
     setValue(value) {
