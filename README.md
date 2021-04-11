@@ -1,8 +1,8 @@
-## BackSlide
+# BackSlide
 
 A simple Gnome-Shell Extension for an automatic background-image (wallpaper) slideshow.
 
-### Screenshots
+## Screenshots
 
 The Widget:
 
@@ -14,11 +14,11 @@ The preferences page to manage the image list.
 
 (Wallpapers **not** included)
 
-### Installation
+## Installation
 
 The extension should be installed from the official extension repository. It can be found here: [![Install](http://media.cdn.ubuntu-de.org/wiki/attachments/56/32/Kippschalter-ON.png)](https://extensions.gnome.org/extension/543/backslide/)
 
-#### Manual installation
+### Manual installation
 
 If you need to "install" the extension manually, you'll need the following utilities:
 
@@ -43,7 +43,7 @@ There are multiple stable branches, depending on the version of GnomeShell you'r
 
 Afterwards, you can activate the extension either by using the `gnome-tweak-tool` or at [extensions.gnome.org/local](https://extensions.gnome.org/local/)
 
-### Settings
+## Settings
 
 All settings can be changed from the `gnome-shell-extension-prefs`-tool or from the command line. Although you can set them using the `dconf`-tool, **using the frontend/widget is preferred!**.
 
@@ -65,6 +65,16 @@ All settings can be changed from the `gnome-shell-extension-prefs`-tool or from 
 
 Settings changed, using the `dconf`-tool will **apply, after the extension is restarted**.
 
-### Contribute
+## Troubleshooting
+
+### Changing background hangs/freezes the system
+
+Some users have been experiencing short freezes while changing background. If it happens to you, try setting this gnome preference (see https://bitbucket.org/LukasKnuth/backslide/issues/68/ui-freezes-while-background-changes):
+
+
+    gsettings set org.gnome.nautilus.desktop background-fade false
+
+
+## Contribute
 
 If you are a developer/translator and you want to contribute to BackSlide, make sure to read "DEVELOPMENT.md" or "TRANSLATION.md" respectively.
