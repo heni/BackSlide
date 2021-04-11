@@ -249,17 +249,20 @@ function buildPrefsWidget(){
             filter: filter,
             select_multiple: true
         });
-        chooser.add_button(Gtk.STOCK_CANCEL, 0);
-        chooser.add_button(Gtk.STOCK_OPEN, 1);
+        chooser.add_button("_Cancel", 0);
+        chooser.add_button("_Open", 1);
         chooser.set_default_response(1);
-        if (chooser.run() === 1){
+        chooser.connect('response', function(response){
+          if (response === 1) {
             let files = chooser.get_filenames();
             // Add the selected files:
             for (let i = 0; i < files.length; i++){
                 addPath(grid_model, files[i]);
             }
-        }
-        chooser.destroy();
+          }
+          chooser.destroy();
+        });
+        chooser.show();
     });
     toolbar.append(add_button);
 
