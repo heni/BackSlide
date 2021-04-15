@@ -252,12 +252,12 @@ function buildPrefsWidget(){
         chooser.add_button("_Cancel", 0);
         chooser.add_button("_Open", 1);
         chooser.set_default_response(1);
-        chooser.connect('response', function(response){
+        chooser.connect('response', function(_, response){
           if (response === 1) {
-            let files = chooser.get_filenames();
+            let files = chooser.get_files();
             // Add the selected files:
-            for (let i = 0; i < files.length; i++){
-                addPath(grid_model, files[i]);
+            for (let i = 0; i < files.get_n_items(); i++){
+                addPath(grid_model, files.get_item(i).get_path());
             }
           }
           chooser.destroy();
