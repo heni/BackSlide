@@ -18,7 +18,6 @@
 */
 // Import global libraries
 const Main = imports.ui.main;
-const Lang = imports.lang;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
@@ -35,12 +34,10 @@ const _ = Gettext.gettext;
 
 /**
  * The new entry in the gnome3 status-area.
- * @type {Lang.Class}
  */
-const BackSlideEntry = new Lang.Class({
-    Name: 'BackSlideEntry',
+var BackSlideEntry = class BackSlideEntry {
 
-    _init: function(){
+    constructor() {
         // Attach to status-area:
         this.button = new PanelMenu.Button(0.0, 'backslide');
         // Add the Icon
@@ -134,14 +131,14 @@ const BackSlideEntry = new Lang.Class({
           delay_slider.connect('notify::value', valueChanged);
         }
 
-        settings.bindKey(Pref.KEY_DELAY, Lang.bind(this, function(value){
+        settings.bindKey(Pref.KEY_DELAY, (value) => {
             var minutes = value.get_int32();
             if (Pref.valid_minutes(minutes)) {
                 delay_slider.setMinutes(minutes);
             }
-        }));
+        });
     }
-});
+}
 
 /**
  * Called when the extension is first loaded (only once)
