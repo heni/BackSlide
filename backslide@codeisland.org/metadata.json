@@ -1,6 +1,6 @@
 {
     "shell-version": [
-      "40"
+      "40", "41"
     ],
     "uuid": "backslide@codeisland.org",
     "name": "BackSlide",
