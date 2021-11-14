@@ -22,12 +22,12 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 // Import own libs:
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 const Widget = Me.imports.widgets;
 const Wall = Me.imports.wallpaper;
 const Pref = Me.imports.settings;
 const Time = Me.imports.timer;
-const Utils = Me.imports.utils;
 // Import translation stuff
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
@@ -144,10 +144,7 @@ var BackSlideEntry = class BackSlideEntry {
  * Called when the extension is first loaded (only once)
  */
 function init() {
-    Utils.initTranslations();
-    wallpaper_control = new Wall.Wallpaper();
-    settings = new Pref.Settings();
-    timer = new Time.Timer();
+    ExtensionUtils.initTranslations();
 }
 
 let wallpaper_control;
@@ -159,6 +156,9 @@ let menu_entry;
  * Called when the extension is activated (maybe multiple times)
  */
 function enable() {
+    wallpaper_control = new Wall.Wallpaper();
+    settings = new Pref.Settings();
+    timer = new Time.Timer();
     menu_entry = new BackSlideEntry();
     Main.panel.addToStatusArea('backslide', menu_entry.button);
     timer.begin();
@@ -168,6 +168,9 @@ function enable() {
  * Called when the extension is deactivated (maybe multiple times)
  */
 function disable() {
+    wallpaper_control = null;
+    settings = null;
+    timer = null;
     menu_entry.button.destroy();
     timer.stop();
 }

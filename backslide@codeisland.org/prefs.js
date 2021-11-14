@@ -27,9 +27,9 @@ const Gdk = imports.gi.Gdk;
 const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Pixbuf = imports.gi.GdkPixbuf;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 const Pref = Me.imports.settings;
-const Utils = Me.imports.utils;
 
 const Gettext = imports.gettext.domain('backslide');
 const _ = Gettext.gettext;
@@ -43,7 +43,7 @@ const PATH_COL = 1;
  * Called right after the file was loaded.
  */
 function init(){
-    Utils.initTranslations();
+    ExtensionUtils.initTranslations();
     settings = new Pref.Settings();
 }
 
