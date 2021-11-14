@@ -154,7 +154,7 @@ var Wallpaper = class Wallpaper {
     }
 
     /**
-     * Implementation of the "Fisher–Yates shuffle"-algorithm, taken from
+     * Implementation of the "Fisher-Yates shuffle"-algorithm, taken from
      *  http://stackoverflow.com/q/2450954/717341
      * @param array the array to shuffle.
      * @return {Boolean} false if the arrays length is 0.

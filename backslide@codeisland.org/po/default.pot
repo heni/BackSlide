@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Backslide\n"
 "Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
-"POT-Creation-Date: 2013-05-07 20:44+0200\n"
+"POT-Creation-Date: 2021-11-14 11:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lukas Knuth <mr.luke.187@googlemail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,49 +11,49 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../extension.js:41
+#: ../extension.js:55
 msgid "Up Next"
 msgstr ""
 
-#: ../extension.js:61 ../extension.js:110
+#: ../extension.js:92 ../extension.js:121
 msgid "minutes"
 msgstr ""
 
-#: ../extension.js:64 ../extension.js:107
+#: ../extension.js:95 ../extension.js:119
 msgid "hours"
 msgstr ""
 
-#: ../extension.js:68 ../extension.js:106 ../extension.js:110
-#, c-format
+#: ../extension.js:99 ../extension.js:119 ../extension.js:121
+#, javascript-format
 msgid "Delay (%d %s)"
 msgstr ""
 
-#: ../prefs.js:146
+#: ../prefs.js:200
 msgid "Move selected Wallpapers up in the list."
 msgstr ""
 
-#: ../prefs.js:168
+#: ../prefs.js:220
 msgid "Move selected Wallpapers down in the list."
 msgstr ""
 
-#: ../prefs.js:191
+#: ../prefs.js:241
 msgid "Add new Wallpapers"
 msgstr ""
 
-#: ../prefs.js:198
+#: ../prefs.js:247
 msgid "Select the new wallpapers."
 msgstr ""
 
-#: ../prefs.js:229
+#: ../prefs.js:272
 msgid "Remove selected Wallpapers"
 msgstr ""
 
-#: ../wallpaper.js:222
+#: ../wallpaper.js:235
 msgid ""
 "The following images where invalid (not found or not image-types) and have "
 "been removed:"
 msgstr ""
 
-#: ../widgets.js:32
+#: ../widgets.js:53
 msgid "Manage Wallpapers"
 msgstr ""
