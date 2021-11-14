@@ -1,0 +1,63 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Backslide\n"
+"Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
+"POT-Creation-Date: 2021-11-14 11:51+0100\n"
+"PO-Revision-Date: 2021-11-14 11:58+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: it\n"
+
+#: ../extension.js:55
+msgid "Up Next"
+msgstr "Prossimo sfondo"
+
+#: ../extension.js:92 ../extension.js:121
+msgid "minutes"
+msgstr "minuti"
+
+#: ../extension.js:95 ../extension.js:119
+msgid "hours"
+msgstr "ore"
+
+#: ../extension.js:99 ../extension.js:119 ../extension.js:121
+#, javascript-format
+msgid "Delay (%d %s)"
+msgstr "Cambiamento automatico (%d %s)"
+
+#: ../prefs.js:200
+msgid "Move selected Wallpapers up in the list."
+msgstr "Sposta lo sfondo prima"
+
+#: ../prefs.js:220
+msgid "Move selected Wallpapers down in the list."
+msgstr "Sposta lo sfondo dopo nella lista"
+
+#: ../prefs.js:241
+msgid "Add new Wallpapers"
+msgstr "Aggiungi nuovi sfondi"
+
+#: ../prefs.js:247
+msgid "Select the new wallpapers."
+msgstr "Seleziona il nuovo sfondo"
+
+#: ../prefs.js:272
+msgid "Remove selected Wallpapers"
+msgstr "Rimuovi lo sfondo selezionato"
+
+#: ../wallpaper.js:235
+msgid ""
+"The following images where invalid (not found or not image-types) and have "
+"been removed:"
+msgstr ""
+"Le seguenti immagini sono state rimosse perché non erano valide (file non "
+"trovati o non di tipo immagine):"
+
+#: ../widgets.js:53
+msgid "Manage Wallpapers"
+msgstr "Gestisci sfondi"
