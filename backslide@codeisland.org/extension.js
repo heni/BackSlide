@@ -170,7 +170,7 @@ function enable() {
 function disable() {
     wallpaper_control = null;
     settings = null;
+    timer.stop();
     timer = null;
     menu_entry.button.destroy();
-    timer.stop();
 }
