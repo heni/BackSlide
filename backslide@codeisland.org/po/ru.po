@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-05-07 20:35+0200\n"
+"PO-Revision-Date: 2013-01-29 14:25+0100\n"
+"Last-Translator:  ereinion\n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Add new Wallpapers"
+msgstr "Добавить новые обои"
+
+msgid "Delay (%d %s)"
+msgstr "Интервал смены (%d %s)"
+
+msgid "Manage Wallpapers"
+msgstr "Управление обоями"
+
+msgid "Move selected Wallpapers down in the list."
+msgstr "Переместить выбранные обои вниз списка"
+
+msgid "Move selected Wallpapers up in the list."
+msgstr "Переместить выбранные обои вверх списка"
+
+msgid "Remove selected Wallpapers"
+msgstr "Убрать выделенные обои из списка"
+
+msgid "Select the new wallpapers."
+msgstr "Выбрать новые обои"
+
+msgid "The following images where invalid (not found or not image-types) and have been removed:"
+msgstr "Следующие изображения не найдены или имеют некорректный формат и будут удалены из списка:"
+
+msgid "Up Next"
+msgstr "Прокрутите вверх для смены"
+
+msgid "hours"
+msgstr "часов"
+
+msgid "minutes"
+msgstr "минут"
