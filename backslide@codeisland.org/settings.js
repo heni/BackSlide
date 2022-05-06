@@ -23,6 +23,7 @@ var KEY_DELAY = "delay";
 var KEY_RANDOM = "random";
 var KEY_IMAGE_LIST = "image-list";
 var KEY_WALLPAPER = "picture-uri";
+var KEY_WALLPAPER_DARK = "picture-uri-dark";
 var KEY_ELAPSED_TIME = "elapsed-time";
 var KEY_CHANGE_LOCKSCREEN = "change-lockscreen";
 
@@ -235,6 +236,26 @@ var Settings = class Settings {
                 }
             } else {
                 throw this._errorWritable(key);
+            }
+        }
+        // Set for the dark mode (GNOME 42):
+        key = KEY_WALLPAPER_DARK;
+        if (this._background_setting.is_writable(key)){
+            // Set a new Background-Image (should show up immediately):
+            if (!this._background_setting.set_string(key, "file://"+path) ){
+                throw this._errorSet(key);
+            }
+        } else {
+            // ignore error here
+        }
+        if (this.getChangeLockscreen()){
+            if (this._screensaver_setting.is_writable(key)){
+                // Set a new Screensaver-Image:
+                if (!this._screensaver_setting.set_string(key, "file://"+path) ){
+                    throw this._errorSet(key);
+                }
+            } else {
+                // ignore error here
             }
         }
         Gio.Settings.sync(); // Necessary: http://stackoverflow.com/questions/9985140
