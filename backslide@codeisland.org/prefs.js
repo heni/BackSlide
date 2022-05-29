@@ -246,6 +246,7 @@ function buildPrefsWidget(){
         let chooser = new Gtk.FileChooserDialog({
             title: _("Select the new wallpapers."),
             action: Gtk.FileChooserAction.OPEN,
+            transient_for: frame.get_root(),
             filter: filter,
             select_multiple: true
         });
