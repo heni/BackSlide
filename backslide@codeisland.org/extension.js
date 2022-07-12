@@ -173,4 +173,5 @@ function disable() {
     timer.stop();
     timer = null;
     menu_entry.button.destroy();
+    menu_entry = null;
 }
