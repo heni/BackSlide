@@ -19,24 +19,26 @@ You'll also need the source-code of BackSlide. *Clone* **or** *Fork* the git rep
 
 Here is a workflow-example from within the cloned git-repository. For this example we'll assume, that your system language is `en`. The language-identifier for your system is the filename of the created `.po`-file, without the file-ending.
 
-    # IF you're using Git:
-    git checkout -b transEN dev #REPLACE en WITH YOUR LANGUAGE!
+```bash
+# IF you're using Git:
+git checkout -b transEN dev #REPLACE en WITH YOUR LANGUAGE!
 
-    # Navigate to the translation folder
-    cd backslide\@codeisland.org/po/
-    # This will create a new .po file in your systems language.
-    msginit
-    # Now edit the created file to add your translations.
-    # Also, be sure to add your email address in the header.
-    # When you're done:
-    cd ..
-    mkdir -p locale/en/LC_MESSAGES #REPLACE en WITH YOUR LANGUAGE!
-    # "Compile" the language-file
-    #   REPLACE en WITH YOUR LANGUAGE!
-    msgfmt po/en.po -o locale/en/LC_MESSAGES/backslide.mo
-    # Now, test everything:
-    cd ..
-    cp -rf backslide\@codeisland.org/ ~/.local/share/gnome-shell/extensions/
+# Navigate to the translation folder
+cd backslide\@codeisland.org/po/
+# This will create a new .po file in your systems language.
+msginit
+# Now edit the created file to add your translations.
+# Also, be sure to add your email address in the header.
+# When you're done:
+cd ..
+mkdir -p locale/en/LC_MESSAGES #REPLACE en WITH YOUR LANGUAGE!
+# "Compile" the language-file
+#   REPLACE en WITH YOUR LANGUAGE!
+msgfmt po/en.po -o locale/en/LC_MESSAGES/backslide.mo
+# Now, test everything:
+cd ..
+cp -rf backslide\@codeisland.org/ ~/.local/share/gnome-shell/extensions/
+```
 
 For more information on this topic, consult the [official translation document](https://live.gnome.org/GnomeShell/Extensions/FAQ/CreatingExtensions).
 
@@ -44,16 +46,18 @@ For more information on this topic, consult the [official translation document](
 
 If a translation is outdated (some new strings aren't translated yet), an update can be made to get the new strings in the `.po`-file, without deleting the old translations:
 
-    # Navigate to the translation folder
-    cd backslide\@codeisland.org/po/
-    # Use the convenient script to updated the .po file
-    #   REPLACE en WITH YOUR LANGUAGE!
-    ./update_translation.sh en.po
-    # Update the .po-file (add the new translations).
-    # When you're done, recompile the translation
-    cd ..
-    # REPLACE en WITH YOUR LANGUAGE!
-    msgfmt po/en.po -o locale/en/LC_MESSAGES/backslide.mo
+```bash
+# Navigate to the translation folder
+cd backslide\@codeisland.org/po/
+# Use the convenient script to updated the .po file
+#   REPLACE en WITH YOUR LANGUAGE!
+./update_translation.sh en.po
+# Update the .po-file (add the new translations).
+# When you're done, recompile the translation
+cd ..
+# REPLACE en WITH YOUR LANGUAGE!
+msgfmt po/en.po -o locale/en/LC_MESSAGES/backslide.mo
+```
 
 Now **test everything** and send in the new `.po`-file as described in ["How do I send in my translation?"](#how-do-i-send-in-my-translation).
 
@@ -63,10 +67,12 @@ The above process *only works*, if the `default.pot`-file is up-to-date (which I
 
 However, if for some reason you added new strings to any `.js`-file, which need translation, you have to update the `default.pot`-file first. To do so, use the script provided:
 
-    # Navigate to the translation folder
-    cd backslide\@codeisland.org/po/
-    # Use the convenient script to updated the default.pot file
-    ./update_template.sh
+```bash
+# Navigate to the translation folder
+cd backslide\@codeisland.org/po/
+# Use the convenient script to updated the default.pot file
+./update_template.sh
+```
 
 **Be sure to check if everything is there first!** Afterwards, you can update the actual translations as shown in ["How can I *update* a translation?"](#how-can-i-update-a-translation)
 
