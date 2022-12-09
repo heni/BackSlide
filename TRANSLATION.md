@@ -78,7 +78,7 @@ cd backslide\@codeisland.org/po/
 
 ### How can I *correct* a translation?
 
-If you feel that something has not been translated very well or simply plain wrong, please [create a new issue](https://bitbucket.org/LukasKnuth/backslide/issues/new).
+If you feel that something has not been translated very well or simply plain wrong, please [create a new issue](https://gitlab.com/p91paul/BackSlide/-/issues/new).
 
 If you can, you can also include an updated translation string, a patch or even send in a pull-request (see above for details on these topics).
 
@@ -86,7 +86,7 @@ If you can, you can also include an updated translation string, a patch or even 
 
 **After** you finished with everything mentioned in [Why was my translation rejected?](#why-was-my-translation-rejected), it depends on what you prefer:
 
-* [Create a new issue](https://bitbucket.org/LukasKnuth/backslide/issues/new) titled "Translation for [language]"
+* [Create a new issue](https://gitlab.com/p91paul/BackSlide/-/issues/new) titled "Translation for [language]"
 * Depending on how you got the source, do **one** of the following:
   * If you cloned the repository, [create a patch](http://git-scm.com/book/ch5-2.html#Public-Large-Project) and attach it to the issue
   * If you forked the repository, send a pull request from your `transXX`-branch

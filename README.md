@@ -6,11 +6,11 @@ A simple Gnome-Shell Extension for an automatic background-image (wallpaper) sli
 
 The Widget:
 
-![Widget Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/42dac894181f6d28611876110cf1ed08c6468c4e/_data/widget_screenshot.jpg)
+![Widget Screenshot](_data/widget_screenshot.jpg)
 
 The preferences page to manage the image list.
 
-![Preferences Screenshot](https://bitbucket.org/LukasKnuth/backslide/raw/42dac894181f6d28611876110cf1ed08c6468c4e/_data/list_screenshot.jpg)
+![Preferences Screenshot](_data/list_screenshot.jpg)
 
 (Wallpapers **not** included)
 
@@ -32,7 +32,7 @@ There are multiple stable branches, depending on the version of GnomeShell you'r
 
     :::bash
     # Clone the repository (you might already did this!)
-    git clone https://LukasKnuth@bitbucket.org/LukasKnuth/backslide.git BackSlide
+    git clone https://gitlab.com/p91paul/BackSlide.git BackSlide
     cd BackSlide
       # EXAMPLE: Build for an older GnomeShell version
       git checkout gnome-3.8 # ONLY if you need to!
@@ -69,7 +69,7 @@ Settings changed, using the `dconf`-tool will **apply, after the extension is re
 
 ### Changing background hangs/freezes the system
 
-Some users have been experiencing short freezes while changing background. If it happens to you, try setting this gnome preference (see https://bitbucket.org/LukasKnuth/backslide/issues/68/ui-freezes-while-background-changes):
+Some users have been experiencing short freezes while changing background. If it happens to you, try setting this gnome preference (see https://gitlab.com/p91paul/BackSlide/-/issues/68):
 
 
     gsettings set org.gnome.nautilus.desktop background-fade false

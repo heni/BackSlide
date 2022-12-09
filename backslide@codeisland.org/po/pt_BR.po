@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Backslide\n"
-"Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
+"Report-Msgid-Bugs-To: https://gitlab.com/p91paul/BackSlide/-/issues\n"
 "POT-Creation-Date: 2013-05-07 20:44+0200\n"
 "PO-Revision-Date: 2022-07-14 23:13-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"

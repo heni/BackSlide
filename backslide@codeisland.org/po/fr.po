@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Backslide\n"
-"Report-Msgid-Bugs-To: https://bitbucket.org/LukasKnuth/backslide/issues\n"
+"Report-Msgid-Bugs-To: https://gitlab.com/p91paul/BackSlide/-/issues\n"
 "POT-Creation-Date: 2013-05-07 20:44+0200\n"
 "PO-Revision-Date: 2013-08-19 23:35+0200\n"
 "Last-Translator: jef <e70838@gmail.com>\n"

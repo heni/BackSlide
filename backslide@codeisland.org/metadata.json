@@ -6,6 +6,6 @@
     "name": "BackSlide",
     "description": "Automatic background-image (wallpaper) slideshow for Gnome Shell",
     "original-author": "Lukas Knuth",
-    "url": "https://bitbucket.org/LukasKnuth/backslide",
+    "url": "https://gitlab.com/p91paul/BackSlide",
     "gettext-domain": "backslide"
 }
