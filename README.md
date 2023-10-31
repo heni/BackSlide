@@ -1,3 +1,6 @@
+## Attention
+This is a fork of original [BackSlide](https://gitlab.com/p91paul/BackSlide) extension with Gnome Shell 45 support
+
 # BackSlide
 
 A simple Gnome-Shell Extension for an automatic background-image (wallpaper) slideshow.
