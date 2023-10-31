@@ -18,27 +18,30 @@
 */
 /**
   * This is where all the widgets for the menu life.
-  */
-const PopupMenu = imports.ui.popupMenu;
-const St = imports.gi.St;
-const GObject = imports.gi.GObject;
-const Cogl = imports.gi.Cogl;
-const Pixbuf = imports.gi.GdkPixbuf;
-const Clutter = imports.gi.Clutter;
-const Util = imports.misc.util;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Slider = imports.ui.slider;
+*/
+const EXTENSION_UUID = 'backslide@codeisland.org';
 
-const Gettext = imports.gettext.domain('backslide');
-const _ = Gettext.gettext;
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Me} from './utils.js';
 
-const Pref = Me.imports.settings;
+import St from 'gi://St';
+import GObject from 'gi://GObject';
+import Cogl from 'gi://Cogl';
+import GdkPixbuf from 'gi://GdkPixbuf';
+import Clutter from 'gi://Clutter';
+
+import * as Pref from './settings.js';
 
 /**
  * A Button to open the "gnome-shell-extension-prefs"-tool to configure this extension.
  */
-var OpenPrefsWidget = GObject.registerClass({},
-class OpenPrefsWidget extends GObject.Object {
+export class OpenPrefsWidget extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     /**
      * Creates a new Button to open the prefs of this extension.
@@ -50,12 +53,11 @@ class OpenPrefsWidget extends GObject.Object {
         this._menu = menu;
         // The Label:
         this._label = new St.Label({
-            text: _("Manage Wallpapers")
+            text: _("Manage Wallpapers"),
+            style_class: 'middle-aligned',
         });
 
         this.item.add_child(this._label);
-        this._label.span = -1;
-        this._label.align = St.Align.MIDDLE;
 
         // Connect:
         this.item.connect('activate', this._onClick.bind(this));
@@ -73,15 +75,17 @@ class OpenPrefsWidget extends GObject.Object {
     launchExtensionPrefs(uuid) {
         Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
-});
+}
 
 // -------------------------------------------------------------------------------
 
 /**
  * Shows a preview of the next wallpaper to be set.
  */
-var NextWallpaperWidget = GObject.registerClass({},
-class NextWallpaperWidget extends GObject.Object {
+export class NextWallpaperWidget extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     _init(){
         this._icon = new Clutter.Actor()
@@ -90,16 +94,15 @@ class NextWallpaperWidget extends GObject.Object {
         // Overall Box:
         this._box = new St.BoxLayout({
             vertical: true,
+            style_class: 'middle-aligned',
         });
 
         this.item.add_child(this._box)
-        this._box.span = -1;
-        this._box.align = St.Align.MIDDLE;
 
         // The computer-picture:
-        let screen_image = Me.dir.get_child('img').get_child("screen.png");
+        let screen_image = Me().dir.get_child('img').get_child("screen.png");
 
-        let initial_pixbuf = Pixbuf.Pixbuf.new_from_file(screen_image.get_path());
+        let initial_pixbuf = GdkPixbuf.Pixbuf.new_from_file(screen_image.get_path());
 
         this._img.set_data(initial_pixbuf.get_pixels(),
                 initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
@@ -134,7 +137,7 @@ class NextWallpaperWidget extends GObject.Object {
      * @param path the path to the image to preview.
      */
     setNextWallpaper(path){
-        let pixbuf = Pixbuf.Pixbuf.new_from_file(path);
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file(path);
         let new_img = new Clutter.Image();
         let isSet = new_img.set_data(pixbuf.get_pixels(),
             pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
@@ -161,7 +164,7 @@ class NextWallpaperWidget extends GObject.Object {
         // Call the base-implementation:
         PopupMenu.PopupBaseMenuItem.prototype.destroy.call(this.item);
     }
-});
+}
 
 // -------------------------------------------------------------------------------
 
@@ -176,12 +179,15 @@ const START_TIMER_STATE = "start";
  *     <li>"order-state-changed" -> Emitted, when the wallpaper-order changes</li>
  * </ul>
  */
-var WallpaperControlWidget = GObject.registerClass({
-    Signals: { 'next-wallpaper': {},
+export class WallpaperControlWidget extends GObject.Object {
+    static {
+        GObject.registerClass({
+            Signals: { 'next-wallpaper': {},
                'timer-state-changed': { param_types: [ GObject.TYPE_BOOLEAN ] },
-               'order-state-changed': { param_types: [ GObject.TYPE_BOOLEAN ] } }
-},
-class WallpaperControlWidget extends GObject.Object {
+               'order-state-changed': { param_types: [ GObject.TYPE_BOOLEAN ] }
+            }
+        }, this);
+    }
 
     /**
      * Creates a new control-widget.
@@ -261,13 +267,15 @@ class WallpaperControlWidget extends GObject.Object {
         this.emit("timer-state-changed", );
     }
 
-});
+}
 
 /**
  * A simple button, styled to be used inside the "WallpaperControlWidget".
  */
-var ControlButton = GObject.registerClass({},
-class ControlButton extends GObject.Object {
+export class ControlButton extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     /**
      * Creates a new button for use inside "WallpaperControlWidget"
@@ -296,15 +304,17 @@ class ControlButton extends GObject.Object {
     setIcon(icon){
         this.icon.icon_name = icon+'-symbolic';
     }
-});
+}
 
 /**
  * A "ControlButton" which also maintains multiple states with different icons.
  * For every state-change (click) the given callback-function will be called with
  *  a parameter, indicating the current (new) state.
  */
-var StateControlButton = GObject.registerClass({},
-class StateControlButton extends GObject.Object {
+export class StateControlButton extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     /**
      * <p>Create a new, stateful button for use inside "WallpaperControlWidget"</p>
@@ -406,14 +416,15 @@ class StateControlButton extends GObject.Object {
         this.icon.icon_name = icon+'-symbolic';
     }
 
-});
+}
 
 /**
  * A "ControlButton" which can be active or inactive. To be used in "WallpaperControlWidget".
  */
-var ControlToggleButton = GObject.registerClass({},
-class ControlToggleButton extends GObject.Object {
-
+export class ControlToggleButton extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     /**
      * Create a new toggle button.
@@ -467,13 +478,15 @@ class ControlToggleButton extends GObject.Object {
             }
         }
     }
-});
+}
 
 // -------------------------------------------------------------------------------
 
 // borrowed from: https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer
-var SliderItem = GObject.registerClass({},
-class SliderItem extends GObject.Object {
+export class SliderItem extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     _init(value) {
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
@@ -499,7 +512,7 @@ class SliderItem extends GObject.Object {
     connect(signal, callback) {
         this._slider.connect(signal, callback);
     }
-});
+}
 
 
 /**
@@ -507,8 +520,10 @@ class SliderItem extends GObject.Object {
  */
 
 
-var DelaySlider = GObject.registerClass({},
-class DelaySlider extends SliderItem {
+export class DelaySlider extends SliderItem {
+    static {
+        GObject.registerClass(this);
+    }
 
     /**
      * Construct a new Widget.
@@ -558,15 +573,17 @@ class DelaySlider extends SliderItem {
 
         return (minutes < this._MINUTES_MIN) ? this._MINUTES_MIN : Math.floor(minutes);
     }
-});
+}
 
 // -------------------------------------------------------------------------------
 
 /**
  * A simple label which only displays the given text.
  */
-var LabelWidget = GObject.registerClass({},
-class LabelWidget extends GObject.Object {
+export class LabelWidget extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
 
     _init(text){
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
@@ -584,4 +601,4 @@ class LabelWidget extends GObject.Object {
     setText(text){
         this._label.text = text;
     }
-});
+}

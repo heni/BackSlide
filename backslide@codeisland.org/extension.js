@@ -17,20 +17,53 @@
  * along with Backslide.  If not, see <http://www.gnu.org/licenses/>.
 */
 // Import global libraries
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const St = imports.gi.St;
+//
+const EXTENSION_UUID = 'backslide@codeisland.org';
+
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import St from 'gi://St';
+
 // Import own libs:
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Widget = Me.imports.widgets;
-const Wall = Me.imports.wallpaper;
-const Pref = Me.imports.settings;
-const Time = Me.imports.timer;
-// Import translation stuff
-const Gettext = imports.gettext.domain('backslide');
-const _ = Gettext.gettext;
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Me} from './utils.js';
+import * as Widget from './widgets.js';
+import * as Wall from './wallpaper.js';
+import * as Pref from './settings.js';
+import * as Time from './timer.js';
+
+let wallpaper_control;
+let settings;
+let timer;
+let menu_entry;
+
+export default class BackSlideExtension extends Extension {
+    /*
+     * Called when the extension is activated (maybe multiple times)
+     */
+    enable() {
+        wallpaper_control = new Wall.Wallpaper();
+        settings = new Pref.Settings(this);
+        timer = new Time.Timer();
+        menu_entry = new BackSlideEntry();
+        Main.panel.addToStatusArea('backslide', menu_entry.button);
+        timer.begin();
+    }
+
+    /**
+     * Called when the extension is deactivated (maybe multiple times)
+     */
+    disable() {
+        wallpaper_control = null;
+        settings = null;
+        timer.stop();
+        timer = null;
+        menu_entry.button.destroy();
+        menu_entry = null;
+    }
+}
+
 
 /**
  * The new entry in the gnome3 status-area.
@@ -144,34 +177,7 @@ var BackSlideEntry = class BackSlideEntry {
  * Called when the extension is first loaded (only once)
  */
 function init() {
-    ExtensionUtils.initTranslations();
+    Me().initTranslations();
 }
 
-let wallpaper_control;
-let settings;
-let timer;
-let menu_entry;
 
-/**
- * Called when the extension is activated (maybe multiple times)
- */
-function enable() {
-    wallpaper_control = new Wall.Wallpaper();
-    settings = new Pref.Settings();
-    timer = new Time.Timer();
-    menu_entry = new BackSlideEntry();
-    Main.panel.addToStatusArea('backslide', menu_entry.button);
-    timer.begin();
-}
-
-/**
- * Called when the extension is deactivated (maybe multiple times)
- */
-function disable() {
-    wallpaper_control = null;
-    settings = null;
-    timer.stop();
-    timer = null;
-    menu_entry.button.destroy();
-    menu_entry = null;
-}
