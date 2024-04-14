@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with Backslide.  If not, see <http://www.gnu.org/licenses/>.
 */
-const MessageTray = imports.ui.messageTray;
-const St = imports.gi.St;
-const Main = imports.ui.main;
+
+import St from 'gi://St';
+import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 /**
  * A simple to use class for showing notifications.
  */
-var Notification = class Notification {
+export class Notification {
 
     constructor(){
         this._source = new SimpleSource("BackSlide", "dialog-error");
@@ -50,7 +51,7 @@ var Notification = class Notification {
 /**
  * A simple source-implementation for notifying new Notifications.
  */
-var SimpleSource = class SimpleSource {
+export class SimpleSource {
 
     /**
      * Create a new simple source for notifications.

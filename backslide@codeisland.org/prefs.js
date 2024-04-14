@@ -16,35 +16,68 @@
  * You should have received a copy of the GNU General Public License
  * along with Backslide.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
  * Preferences for the extension which will be available in the "gnome-shell-extension-prefs"
  *  tool.
  * In the preferences, you can add new images to the list and remove old ones.
  * @see <a href="https://live.gnome.org/GnomeShell/Extensions#Extension_Preferences">Doc</a>
  */
-const Gtk = imports.gi.Gtk;
-const Gdk = imports.gi.Gdk;
-const GObject = imports.gi.GObject;
-const Gio = imports.gi.Gio;
-const Pixbuf = imports.gi.GdkPixbuf;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Pref = Me.imports.settings;
 
-const Gettext = imports.gettext.domain('backslide');
-const _ = Gettext.gettext;
+import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
+import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
+import GdkPixbuf from 'gi://GdkPixbuf';
+
+
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import * as Pref from './settings.js';
+
+
+export default class BackslideExtensionPreferences extends ExtensionPreferences {
+    _init(extension) {
+        extension.initTranslations();
+        settings = new Pref.Settings(extension)
+        this._initialized = true;
+    }
+
+    fillPreferencesWindow(window) {
+        let page = new Adw.PreferencesPage({title: 'Backslide Settings'});
+        let prefGroup = new Adw.PreferencesGroup({title: 'Select Images'});
+        let optRow = new Adw.ActionRow({title: ''});
+        window.add(page);
+        page.add(prefGroup);
+        prefGroup.add(optRow);
+
+        optRow.add_suffix(this.getPreferencesWidget());
+    }
+
+    getPreferencesWidget() {
+        if (!this._initialized) {
+            this._init(ExtensionPreferences.lookupByUUID(EXTENSION_UUID));
+        }
+        return buildPrefsWidget();
+    }
+}
+
 
 let settings;
 let ready = false;
 const IMAGE_REGEX = /^image\/\w+$/i;
 const PIXBUF_COL = 0;
 const PATH_COL = 1;
+const EXTENSION_UUID = 'backslide@codeisland.org';
+
 /**
  * Called right after the file was loaded.
  */
 function init(){
-    ExtensionUtils.initTranslations();
-    settings = new Pref.Settings();
+    console.log("Backslide Preferences static init");
+    let extension = Me();
+    extension.initTranslations();
+    settings = new Pref.Settings(extension)
 }
 
 function addFileEntry(model, path){
@@ -58,10 +91,10 @@ function addFileEntry(model, path){
         */
         let iterator = model.append();
         // Load it Async:
-        Pixbuf.Pixbuf.new_from_stream_at_scale_async(stream, 240, -1, true, null,
+        GdkPixbuf.Pixbuf.new_from_stream_at_scale_async(stream, 240, -1, true, null,
             function(source, res){                   // TODO Max-Height...!
                 // Get the loaded image:
-                let image = Pixbuf.Pixbuf.new_from_stream_finish(res);
+                let image = GdkPixbuf.Pixbuf.new_from_stream_finish(res);
                 if (image === undefined) return;
                 // Append to the list:
                 model.set(iterator, [PIXBUF_COL,PATH_COL], [image, path]);
@@ -133,7 +166,7 @@ function buildPrefsWidget(){
     // The model for the tree:
     // See (and next page): http://scentric.net/tutorial/sec-treeviewcol-renderer.html
     let grid_model = new Gtk.ListStore();
-    grid_model.set_column_types([Pixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
+    grid_model.set_column_types([GdkPixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
     // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
 
     // The Image-Grid:
