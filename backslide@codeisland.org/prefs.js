@@ -38,8 +38,6 @@ import * as Pref from './settings.js';
 
 export default class BackslideExtensionPreferences extends ExtensionPreferences {
     _init(extension) {
-        console.log("Backslide Preferences class init");
-
         extension.initTranslations();
         settings = new Pref.Settings(extension)
         this._initialized = true;
