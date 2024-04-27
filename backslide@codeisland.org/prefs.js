@@ -37,25 +37,22 @@ import * as Pref from './settings.js';
 const IMAGE_REGEX = /^image\/\w+$/i;
 const PIXBUF_COL = 0;
 const PATH_COL = 1;
-const EXTENSION_UUID = 'backslide@codeisland.org';
 
 
 export default class BackslideExtensionPreferences extends ExtensionPreferences {
-    _init(extension) {
-        this.settings = new Pref.Settings(extension)
-        this._initialized = true;
-        this.ready = false;
-    }
 
     fillPreferencesWindow(window) {
+        this.settings = new Pref.Settings(this);
+        this.ready = false;
         let page = new Adw.PreferencesPage({title: 'Backslide Settings'});
         let prefGroup = new Adw.PreferencesGroup({title: 'Select Images'});
-        let optRow = new Adw.ActionRow({title: ''});
+        // let optRow = new Adw.ActionRow({title: ''});
         window.add(page);
         page.add(prefGroup);
-        prefGroup.add(optRow);
+        // prefGroup.add(optRow);
 
-        optRow.add_suffix(this.getPreferencesWidget());
+        prefGroup.add(this.getPreferencesWidget());
+        window.set_size_request(815, 600);
     }
 
     /**
@@ -64,14 +61,13 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
      */
     getPreferencesWidget() {
         let frame = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            width_request: 815,
-            height_request: 600
+            orientation: Gtk.Orientation.HORIZONTAL
         });
 
         // The model for the tree:
         // See (and next page): http://scentric.net/tutorial/sec-treeviewcol-renderer.html
         let grid_model = new Gtk.ListStore();
+        this.grid_model = grid_model;
         grid_model.set_column_types([GdkPixbuf.Pixbuf, GObject.TYPE_STRING]); // See http://blogs.gnome.org/danni/2012/03/29/gtk-liststores-and-clutter-listmodels-in-javascriptgjs/
         // The String-column is not visible and only used for storing the path to the pixbuf (no way of finding out later).
 
@@ -98,13 +94,11 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         //     let uris = data.get_uris();
         //     for (let i = 0; i < uris.length; i++) {
         //         let uri = uris [i];
-        //         this.addURI(grid_model, uri);
+        //         this.addURI(uri);
         //     }
         // });
 
-        let grid_scroll = new Gtk.ScrolledWindow();
-        grid_scroll.set_child(image_grid);
-        frame.append(grid_scroll);
+        frame.append(image_grid);
 
 
         /*    grid_scroll.drag_dest_set(Gtk.DestDefaults.ALL, null, Gdk.DragAction.MOVE);
@@ -114,7 +108,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         // Fill the Model:
         let image_list = this.settings.getImageList();
         for (let i = 0; i < image_list.length; i++){
-            this.addFileEntry(grid_model, image_list[i]);
+            this.addFileEntry(image_list[i]);
         }
         // Pre-populate the list with default wallpapers:
         if (image_list.length <= 0){
@@ -124,7 +118,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
                 stores it's images...
                 Anyways, if it's not, the search will gracefully die in peace.
              */
-            this.addDirectory(grid_model, "/usr/share/backgrounds/gnome");
+            this.addDirectory("/usr/share/backgrounds/gnome");
         }
 
         // Toolbar to the right:
@@ -179,7 +173,9 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
             icon_name: 'list-add',
             tooltip_text: _("Add new Wallpapers")
         });
-        add_button.connect('clicked', function(){
+        // signal goes through gtk, this is not kept
+        let self = this;
+        add_button.connect('clicked', () => {
             var filter = new Gtk.FileFilter();
             filter.add_pixbuf_formats();
             let chooser = new Gtk.FileChooserDialog({
@@ -192,13 +188,17 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
             chooser.add_button("_Cancel", 0);
             chooser.add_button("_Open", 1);
             chooser.set_default_response(1);
-            chooser.connect('response', function(_, response){
-                if (response === 1) {
-                    let files = chooser.get_files();
-                    // Add the selected files:
-                    for (let i = 0; i < files.get_n_items(); i++){
-                        this.addPath(grid_model, files.get_item(i).get_path());
+            chooser.connect('response', (_, response) => {
+                try {
+                    if (response === 1) {
+                        let files = chooser.get_files();
+                        // Add the selected files:
+                        for (let i = 0; i < files.get_n_items(); i++) {
+                            this.addPath(files.get_item(i).get_path());
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
                 }
                 chooser.destroy();
             });
@@ -257,7 +257,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
 
         // Store the changes in the settings, when the window is closed or the settings change:
         // Workaround, see https://bugzilla.gnome.org/show_bug.cgi?id=687510
-        frame.connect('unrealize', function(widget){
+        frame.connect('unrealize', (widget) => {
             if (!this.ready) return;
             // Save the list:
             let [ success, iterator ] = grid_model.get_iter_first();
@@ -275,7 +275,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
     }
 
 
-    addFileEntry(model, path){
+    addFileEntry(path){
         // Asynchronously load and scale the image from the given path:
         try {
             let file = Gio.file_new_for_path(path);
@@ -284,10 +284,11 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
                 We need to assign the new "space" in the grid outside, to keep the order
                 of the list. Otherwise, we get the order in which the loading finishes...
             */
-            let iterator = model.append();
+            let model = this.grid_model;
+            let iterator = this.grid_model.append();
             // Load it Async:
             GdkPixbuf.Pixbuf.new_from_stream_at_scale_async(stream, 240, -1, true, null,
-                function(source, res){
+                (source, res) => {
                     // Get the loaded image:
                     let image = GdkPixbuf.Pixbuf.new_from_stream_finish(res);
                     if (image === undefined) return;
@@ -306,7 +307,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         }
     }
 
-    addDirectory(model, path){
+    addDirectory(path){
         let dir = Gio.file_new_for_path(path);
         if (dir.query_file_type(Gio.FileQueryInfoFlags.NONE, null) != Gio.FileType.DIRECTORY){
             // Not a valid directory!
@@ -319,33 +320,31 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
             if (info.get_file_type() == Gio.FileType.REGULAR && info.get_is_hidden() == false){
                 // Check if it's an image:
                 if (info.get_content_type().match(IMAGE_REGEX) != null){
-                    this.addFileEntry(model, path + "/" + info.get_name());
+                    this.addFileEntry(path + "/" + info.get_name());
                 }
             } else if (info.get_file_type() == Gio.FileType.DIRECTORY && !info.get_is_hidden()){
                 // Recursive search:
-                this.addDirectory(model, path + "/" + info.get_name());
+                this.addDirectory(path + "/" + info.get_name());
             }
         }
     }
 
-    addGioFile(model, file){
+    addGioFile(file){
         // Gather information:
         let type = file.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
         // Check whether a directory or a file wasen:
         if (type == Gio.FileType.REGULAR){
-            this.addFileEntry(model, file.get_path());
+            this.addFileEntry(file.get_path());
         } else if (type == Gio.FileType.DIRECTORY){
-            this.addDirectory(model, file.get_path());
+            this.addDirectory(file.get_path());
         }
     }
 
-    addPath(model, path){
-        this.addGioFile(model, Gio.file_new_for_path(path));
+    addURI(uri){
+        this.addGioFile(Gio.file_new_for_uri(uri));
     }
 
-    addURI(model, uri){
-        this.addGioFile(model, Gio.file_new_for_uri(uri));
+    addPath(path) {
+        this.addGioFile(Gio.file_new_for_path(path));
     }
-
 }
-

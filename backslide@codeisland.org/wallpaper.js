@@ -229,7 +229,7 @@ export class Wallpaper {
             }
             this._notify.notify(
                 "BackSlide Wallpaper Error",
-                _("The following images where invalid (not found or not image-types) and have been removed:"),
+                _("The following images where invalid (not found or not image-types) and have been removed:\n") +
                 body
             );
         }

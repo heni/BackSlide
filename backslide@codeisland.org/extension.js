@@ -74,18 +74,15 @@ var BackSlideEntry = class BackSlideEntry {
         this.button = new PanelMenu.Button(0.0, 'backslide');
         // Add the Icon
         this.button.show();
-        this._iconBox = new St.BoxLayout();
-        this._iconIndicator = new St.Icon({
+        this.button.add_child(new St.Icon({
             icon_name: 'emblem-photos-symbolic',
             style_class: 'system-status-icon'
-        });
-        this._iconBox.add(this._iconIndicator);
-        this.button.add_actor(this._iconBox);
+        }));
         this.button.add_style_class_name('panel-status-button');
 
         // Add the Widgets to the menu:
         this.button.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")).item);
-        let next_wallpaper = new Widget.NextWallpaperWidget(this);
+        let next_wallpaper = new Widget.NextWallpaperWidget(extension);
         wallpaper_control.setPreviewCallback(function(path){
             try {
                 next_wallpaper.setNextWallpaper(path);

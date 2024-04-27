@@ -111,7 +111,7 @@ export class NextWallpaperWidget extends GObject.Object {
         this._icon_bin = new St.Bin({
             child: this._icon, // The icon has much space on top/bottom,
         });
-        this._box.add(this._icon_bin);
+        this._box.add_child(this._icon_bin);
 
         this._texture = new Clutter.Actor({
             content: this._img
@@ -121,7 +121,7 @@ export class NextWallpaperWidget extends GObject.Object {
             style_class: "overlay"
         });
         this._wallpaper.set_child(this._texture);
-        this._box.add(this._wallpaper);
+        this._box.add_child(this._wallpaper);
 
 
     }
@@ -197,13 +197,13 @@ export class WallpaperControlWidget extends GObject.Object {
             y_expand: true
         });
 
-        this.item.add(this.box);
+        this.item.add_child(this.box);
 
         // Add the buttons:
         this._order_button = new ControlToggleButton(
             "media-playlist-shuffle", orderStateChanged
         );
-        this.box.add_actor(this._order_button.actor);
+        this.box.add_child(this._order_button.actor);
         let timer_button = new StateControlButton(
             [
                 {
@@ -218,13 +218,13 @@ export class WallpaperControlWidget extends GObject.Object {
             }
         );
         timer_button.setState(STOP_TIMER_STATE);
-        this.box.add_actor(timer_button.actor);
+        this.box.add_child(timer_button.actor);
         let skipButton = new ControlButton("media-skip-forward");
         let self = this;
         skipButton.actor.connect('clicked', function() {
           nextWallpaper();
         });
-        this.box.add_actor(skipButton.actor);
+        this.box.add_child(skipButton.actor);
     }
 
     /**
