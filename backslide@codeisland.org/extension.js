@@ -27,7 +27,6 @@ import St from 'gi://St';
 
 // Import own libs:
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {Me} from './utils.js';
 import * as Widget from './widgets.js';
 import * as Wall from './wallpaper.js';
 import * as Pref from './settings.js';
@@ -43,10 +42,10 @@ export default class BackSlideExtension extends Extension {
      * Called when the extension is activated (maybe multiple times)
      */
     enable() {
-        wallpaper_control = new Wall.Wallpaper();
+        wallpaper_control = new Wall.Wallpaper(this);
         settings = new Pref.Settings(this);
-        timer = new Time.Timer();
-        menu_entry = new BackSlideEntry();
+        timer = new Time.Timer(this);
+        menu_entry = new BackSlideEntry(this);
         Main.panel.addToStatusArea('backslide', menu_entry.button);
         timer.begin();
     }
@@ -70,7 +69,7 @@ export default class BackSlideExtension extends Extension {
  */
 var BackSlideEntry = class BackSlideEntry {
 
-    constructor() {
+    constructor(extension) {
         // Attach to status-area:
         this.button = new PanelMenu.Button(0.0, 'backslide');
         // Add the Icon
@@ -86,7 +85,7 @@ var BackSlideEntry = class BackSlideEntry {
 
         // Add the Widgets to the menu:
         this.button.menu.addMenuItem(new Widget.LabelWidget(_("Up Next")).item);
-        let next_wallpaper = new Widget.NextWallpaperWidget();
+        let next_wallpaper = new Widget.NextWallpaperWidget(this);
         wallpaper_control.setPreviewCallback(function(path){
             try {
                 next_wallpaper.setNextWallpaper(path);
@@ -134,7 +133,7 @@ var BackSlideEntry = class BackSlideEntry {
         this.button.menu.addMenuItem(delay_slider_label.item);
         let delay_slider = new Widget.DelaySlider(settings.getDelay() );
         this.button.menu.addMenuItem(delay_slider.item);
-        this.button.menu.addMenuItem(new Widget.OpenPrefsWidget(this.button.menu).item);
+        this.button.menu.addMenuItem(new Widget.OpenPrefsWidget(extension, this.button.menu).item);
 
         // React on control-interaction:
         timer.setCallback(function(){
@@ -172,12 +171,3 @@ var BackSlideEntry = class BackSlideEntry {
         });
     }
 }
-
-/**
- * Called when the extension is first loaded (only once)
- */
-function init() {
-    Me().initTranslations();
-}
-
-

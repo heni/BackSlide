@@ -20,7 +20,6 @@ import GLib from 'gi://GLib';
 import * as Pref from './settings.js';
 import * as Notify from './notification.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {Me} from './utils.js';
 
 /**
  * This is where the list of wallpapers is maintained and the current
@@ -34,8 +33,8 @@ export class Wallpaper {
      * Constructs a new class to do all the wallpaper-related work.
      * @private
      */
-    constructor(){
-        this._settings = new Pref.Settings(Me());
+    constructor(extension){
+        this._settings = new Pref.Settings(extension);
         this._notify = new Notify.Notification();
         this._image_queue = [];
         this._is_random = false;

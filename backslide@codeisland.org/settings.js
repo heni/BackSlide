@@ -47,16 +47,7 @@ export class Settings {
      * @private
      */
     constructor(extension) {
-        let schemaDir = extension.dir.get_child('schemas').get_path();
-
-        let schemaSource = Gio.SettingsSchemaSource.new_from_directory(
-            schemaDir, Gio.SettingsSchemaSource.get_default(), false
-        );
-        let schema = schemaSource.lookup(Settings._schemaName, false);
-
-        this._setting = new Gio.Settings({
-            settings_schema: schema
-        });
+        this._setting = extension.getSettings();
         this._background_setting = new Gio.Settings({
             schema: "org.gnome.desktop.background"
         });

@@ -25,7 +25,6 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {Me} from './utils.js';
 
 import St from 'gi://St';
 import GObject from 'gi://GObject';
@@ -45,10 +44,12 @@ export class OpenPrefsWidget extends GObject.Object {
 
     /**
      * Creates a new Button to open the prefs of this extension.
+     * @param extension the current extension.
      * @param menu the menu to be toggled when the button is pressed.
-     * @private
      */
-    _init(menu){
+    constructor(extension, menu) {
+        super();
+        this.extension = extension;
         this.item = new PopupMenu.PopupBaseMenuItem();
         this._menu = menu;
         // The Label:
@@ -64,16 +65,8 @@ export class OpenPrefsWidget extends GObject.Object {
     }
 
     _onClick(){
-        this.launchExtensionPrefs("backslide@codeisland.org");
+        this.extension.openPreferences();
         this._menu.toggle(); // Toggle the menu.
-    }
-
-    /**
-     * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
-     *  with the given uuid.</p>
-     */
-    launchExtensionPrefs(uuid) {
-        Util.trySpawnCommandLine("gnome-shell-extension-prefs "+uuid);
     }
 }
 
@@ -87,7 +80,9 @@ export class NextWallpaperWidget extends GObject.Object {
         GObject.registerClass(this);
     }
 
-    _init(){
+    constructor(extension) {
+        super();
+        this.extension = extension;
         this._icon = new Clutter.Actor()
         this._img = new Clutter.Image();
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
@@ -100,7 +95,7 @@ export class NextWallpaperWidget extends GObject.Object {
         this.item.add_child(this._box)
 
         // The computer-picture:
-        let screen_image = Me().dir.get_child('img').get_child("screen.png");
+        let screen_image = this.extension.dir.get_child('img').get_child("screen.png");
 
         let initial_pixbuf = GdkPixbuf.Pixbuf.new_from_file(screen_image.get_path());
 

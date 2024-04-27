@@ -18,7 +18,6 @@
 */
 import GLib from 'gi://GLib';
 import * as Pref from './settings.js';
-import {Me} from './utils.js'
 
 /**
  * A simple interface for a timer which will call the given callback-function in
@@ -50,8 +49,8 @@ export class Timer {
      * @see #setCallback
      * @private
      */
-    constructor(){
-        this._settings = new Pref.Settings(Me());
+    constructor(extension){
+        this._settings = new Pref.Settings(extension);
         this._delay = this._settings.getDelay();
         this._elapsed_minutes = this._settings.getElapsedTime();
         // Listen to changes and restart with new delay.

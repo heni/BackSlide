@@ -7,5 +7,6 @@
     "description": "Automatic background-image (wallpaper) slideshow for Gnome Shell",
     "original-author": "Lukas Knuth",
     "url": "https://gitlab.com/p91paul/BackSlide",
-    "gettext-domain": "backslide"
+    "gettext-domain": "backslide",
+    "settings-schema": "org.gnome.shell.extensions.backslide"
 }
