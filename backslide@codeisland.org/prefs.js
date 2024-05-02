@@ -46,13 +46,16 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         this.ready = false;
         let page = new Adw.PreferencesPage({title: 'Backslide Settings'});
         let prefGroup = new Adw.PreferencesGroup({title: 'Select Images'});
-        // let optRow = new Adw.ActionRow({title: ''});
         window.add(page);
         page.add(prefGroup);
-        // prefGroup.add(optRow);
 
         prefGroup.add(this.getPreferencesWidget());
         window.set_size_request(815, 600);
+        window.connect('close-request', () => {
+            // cleaning up as requested in gnome review
+            this.settings = null;
+            this.grid_model = null;
+        });
     }
 
     /**
