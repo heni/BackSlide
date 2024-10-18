@@ -52,6 +52,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         prefGroup.add(this.getPreferencesWidget());
         window.set_size_request(815, 600);
         window.connect('close-request', () => {
+			this.saveToSettings();
             // cleaning up as requested in gnome review
             this.settings = null;
             this.grid_model = null;
@@ -261,21 +262,29 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         // Store the changes in the settings, when the window is closed or the settings change:
         // Workaround, see https://bugzilla.gnome.org/show_bug.cgi?id=687510
         frame.connect('unrealize', (widget) => {
-            if (!this.ready) return;
-            // Save the list:
-            let [ success, iterator ] = grid_model.get_iter_first();
-            let list = [];
-            if (success){
-                do {
-                    let img_path = grid_model.get_value(iterator, PATH_COL);
-                    list.push(img_path);
-                } while (grid_model.iter_next(iterator));
-            }
-            this.settings.setImageList(list);
+			this.saveToSettings();
         });
 
         return frame;
     }
+    
+    saveToSettings() {
+		console.log(`unrealize, ready: ${this.ready}`);
+        if (!this.ready) return;
+        // Save the list:
+        let [ success, iterator ] = this.grid_model.get_iter_first();
+        let list = [];
+        if (success){
+            do {
+                let img_path = this.grid_model.get_value(iterator, PATH_COL);
+                list.push(img_path);
+            } while (this.grid_model.iter_next(iterator));
+        }
+		console.log(`unrealize, setting ${list}`);
+        this.settings.setImageList(list);
+		console.log(`unrealize, done setting`);
+		
+	}
 
 
     addFileEntry(path){
