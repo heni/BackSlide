@@ -68,21 +68,6 @@ export class OpenPrefsWidget extends GObject.Object {
         this.extension.openPreferences();
         this._menu.toggle(); // Toggle the menu.
     }
-
-    /**
-     * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
-     *  with the given uuid.</p>
-     */
-    launchExtensionPrefs(uuid) {
-        try {
-            Util.trySpawnCommandLine(`gnome-extensions prefs ${uuid}`);
-        } catch (e) {
-            console.error(
-                "[Backslide] Can't show preferences: ",e,
-                "\nProbably you need to install `gnome-extensions` CLI\n"
-            );
-        }
-    }
 }
 
 // -------------------------------------------------------------------------------
