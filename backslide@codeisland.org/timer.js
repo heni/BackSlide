@@ -53,6 +53,8 @@ export class Timer {
         this._settings = new Pref.Settings(extension);
         this._delay = this._settings.getDelay();
         this._elapsed_minutes = this._settings.getElapsedTime();
+        this._interval_id = 0;
+        this._start_timestamp = null;
         // Listen to changes and restart with new delay.
         this._settings.bindKey(Pref.KEY_DELAY, (value) => {
             var minutes = value.get_int32();
@@ -91,8 +93,9 @@ export class Timer {
             */
             this._elapsed_minutes = 0;
         }
+        const seconds = Math.max(1, (this._delay - this._elapsed_minutes)*60);
         this._interval_id = GLib.timeout_add_seconds(
-            GLib.PRIORITY_DEFAULT, (this._delay-this._elapsed_minutes)*60,
+            GLib.PRIORITY_DEFAULT, seconds,
             this._callbackInternal.bind(this)
         );
     }
@@ -101,12 +104,12 @@ export class Timer {
      * Stop the current timer. Repeated calls to this method don't have any effect.
      */
     stop(){
-        if (this._interval_id !== null){
+        if (this._interval_id > 0){
             if (GLib.source_remove(this._interval_id) ){
-                this._interval_id = null;
+                this._interval_id = 0;
                 // Calculate elapsed time:
                 let already = this._elapsed_minutes;
-                let diff = Math.abs(new Date() - this._start_timestamp);
+                let diff = this._start_timestamp ? Math.abs(new Date() - this._start_timestamp) : 0;
                 this._elapsed_minutes = Math.floor((diff / 1000) / 60) + already;
                 this._settings.setElapsedTime(this._elapsed_minutes);
             }
@@ -132,6 +135,7 @@ export class Timer {
         this._start_timestamp = new Date(); // Reset the time-stamp, see issue12
         if (this._elapsed_minutes > 0){
             // The interval was started with a shortened delay. Restart it with the actual delay:
+            this._interval_id = 0;
             this._elapsed_minutes = 0;
             this.begin();
             return false; // Don't restart the (shortened) interval.

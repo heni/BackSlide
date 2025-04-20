@@ -68,6 +68,21 @@ export class OpenPrefsWidget extends GObject.Object {
         this.extension.openPreferences();
         this._menu.toggle(); // Toggle the menu.
     }
+
+    /**
+     * <p>Launches the "gnome-shell-extension-prefs"-tool with the settings for the extension
+     *  with the given uuid.</p>
+     */
+    launchExtensionPrefs(uuid) {
+        try {
+            Util.trySpawnCommandLine(`gnome-extensions prefs ${uuid}`);
+        } catch (e) {
+            console.error(
+                "[Backslide] Can't show preferences: ",e,
+                "\nProbably you need to install `gnome-extensions` CLI\n"
+            );
+        }
+    }
 }
 
 // -------------------------------------------------------------------------------
@@ -83,8 +98,12 @@ export class NextWallpaperWidget extends GObject.Object {
     constructor(extension) {
         super();
         this.extension = extension;
-        this._icon = new Clutter.Actor()
-        this._img = new Clutter.Image();
+        this._icon = new Clutter.Actor();
+        // Create an ImageContent that replaces Clutter.Image in GNOME 48+
+        const coglContext = global.stage.context
+                                 .get_backend()
+                                 .get_cogl_context();
+
         this.item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         // Overall Box:
         this._box = new St.BoxLayout({
@@ -99,12 +118,19 @@ export class NextWallpaperWidget extends GObject.Object {
 
         let initial_pixbuf = GdkPixbuf.Pixbuf.new_from_file(screen_image.get_path());
 
-        this._img.set_data(initial_pixbuf.get_pixels(),
-                initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
-                                : Cogl.PixelFormat.RGB_888,
-                initial_pixbuf.get_width(),
-                initial_pixbuf.get_height(),
-                initial_pixbuf.get_rowstride());
+        this._img = St.ImageContent.new_with_preferred_size(
+            initial_pixbuf.get_width(),
+            initial_pixbuf.get_height(),
+        );
+        this._img.set_data(
+            coglContext,
+            initial_pixbuf.get_pixels(),
+            initial_pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                            : Cogl.PixelFormat.RGB_888,
+            initial_pixbuf.get_width(),
+            initial_pixbuf.get_height(),
+            initial_pixbuf.get_rowstride(),
+        );
         this._icon.set_content(this._img);
         this._icon.set_size(240,140);
 
@@ -133,13 +159,25 @@ export class NextWallpaperWidget extends GObject.Object {
      */
     setNextWallpaper(path){
         let pixbuf = GdkPixbuf.Pixbuf.new_from_file(path);
-        let new_img = new Clutter.Image();
-        let isSet = new_img.set_data(pixbuf.get_pixels(),
-            pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
-                            : Cogl.PixelFormat.RGB_888,
+
+        const coglContext = global.stage.context
+                                 .get_backend()
+                                 .get_cogl_context();
+
+        let new_img = St.ImageContent.new_with_preferred_size(
             pixbuf.get_width(),
             pixbuf.get_height(),
-            pixbuf.get_rowstride());
+        );
+
+        let isSet = new_img.set_data(
+            coglContext,
+            pixbuf.get_pixels(),
+            pixbuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888
+                                   : Cogl.PixelFormat.RGB_888,
+            pixbuf.get_width(),
+            pixbuf.get_height(),
+            pixbuf.get_rowstride(),
+        );
 
         if (isSet === false){
             throw "Image at '"+path+"' couldn't be found. It will be removed from the list...";
@@ -259,7 +297,7 @@ export class WallpaperControlWidget extends GObject.Object {
      * @private
      */
     _timerStateChanged(state){
-        this.emit("timer-state-changed", );
+        this.emit("timer-state-changed", state);
     }
 
 }

@@ -91,6 +91,7 @@ var BackSlideEntry = class BackSlideEntry {
                  The wallpaper could not be loaded (either not existent or not an image). Therefor,
                  remove particularly it from the image-list.
                 */
+                console.error("[Backslide] Can't setup wallpaper:", e);
                 wallpaper_control.removeInvalidWallpapers(path);
             }
         });
@@ -141,7 +142,7 @@ var BackSlideEntry = class BackSlideEntry {
         let valueChanged = function(){
             let minutes = delay_slider.getMinutes();
 
-            global.log('Extension Slider value-changed: returned minutes = ' + minutes);
+            /* console.log('Extension Slider value-changed: returned minutes = ' + minutes); */
 
             let label_text;
             if (minutes > 60){

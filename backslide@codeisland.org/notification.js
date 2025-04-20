@@ -18,8 +18,11 @@
 */
 
 import St from 'gi://St';
+import GObject from 'gi://GObject';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
+
 
 /**
  * A simple to use class for showing notifications.
@@ -38,7 +41,6 @@ export class Notification {
             source,
             title: title,
             body: body,
-            bodyMarkup: true
         });
         notification.setIconName("dialog-error");
         source.addNotification(notification);

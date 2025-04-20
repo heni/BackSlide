@@ -227,6 +227,7 @@ export class Wallpaper {
             for (let i in found){
                 body += "* "+found[i]+"\n";
             }
+            console.error("[BackSlide Wallpaper Error] The following images where invalid (not found or not image-types) and have been removed:", body);
             this._notify.notify(
                 "BackSlide Wallpaper Error",
                 _("The following images where invalid (not found or not image-types) and have been removed:\n") +
