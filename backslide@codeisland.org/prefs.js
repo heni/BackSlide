@@ -102,9 +102,20 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         //     }
         // });
 
-        frame.append(image_grid);
 
 
+        let grid_scroll = new Gtk.ScrolledWindow({
+            // normal constructor properties
+            hscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            // width/height hints
+            min_content_width: 760,
+            max_content_width: 760,
+            min_content_height: 400,
+            max_content_height: 640,
+        });
+        grid_scroll.set_child(image_grid);
+        frame.append(grid_scroll);
         /*    grid_scroll.drag_dest_set(Gtk.DestDefaults.ALL, null, Gdk.DragAction.MOVE);
             grid_scroll.drag_dest_add_image_targets();*/
 
@@ -129,6 +140,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
         let toolbar = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL
         });
+
         frame.append(toolbar);
 
         // Move the selected wallpaper up in the list.
@@ -267,10 +279,10 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
 
         return frame;
     }
-    
+
     saveToSettings() {
-		console.log(`unrealize, ready: ${this.ready}`);
-        if (!this.ready) return;
+        console.log(`unrealize, ready: ${this.ready}, ${!!this.settings}`);
+        if (!this.ready || !this.settings) return;
         // Save the list:
         let [ success, iterator ] = this.grid_model.get_iter_first();
         let list = [];
@@ -283,7 +295,6 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
 		console.log(`unrealize, setting ${list}`);
         this.settings.setImageList(list);
 		console.log(`unrealize, done setting`);
-		
 	}
 
 
@@ -307,6 +318,7 @@ export default class BackslideExtensionPreferences extends ExtensionPreferences 
                     // Append to the list:
                     model.set(iterator, [PIXBUF_COL,PATH_COL], [image, path]);
                     // There is data in the list, we're ready to store if necessary:
+
                     this.ready = true;
                 });
         } catch (e){
